@@ -1,9 +1,7 @@
 #include <iostream>
+#include "Output.h"
 using namespace  std;
 int main(){
-    cout << "Hello World" << endl;
-    cout << "This is a test" << endl;
-    cout << "This is a test 2" << endl;
-    system("pause");
+    Output("Hello World!");
     return 0;
 }

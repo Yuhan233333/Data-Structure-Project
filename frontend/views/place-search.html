@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场所查询 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/place-search.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="../assets/logo.png" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="#" class="active"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="diary.html"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="social.html"><i class="fas fa-users"></i> 社交圈</a>
+                <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <div class="place-search-container">
+                <!-- 搜索栏 -->
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索景点、餐厅、酒店..." v-model="searchQuery">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+
+                <!-- 筛选选项 -->
+                <div class="filter-options">
+                    <div class="filter-group">
+                        <span>类型：</span>
+                        <button :class="['filter-btn', activeType === '全部' ? 'active' : '']" @click="filterByType('全部')">全部</button>
+                        <button :class="['filter-btn', activeType === '景点' ? 'active' : '']" @click="filterByType('景点')">景点</button>
+                        <button :class="['filter-btn', activeType === '餐厅' ? 'active' : '']" @click="filterByType('餐厅')">餐厅</button>
+                        <button :class="['filter-btn', activeType === '酒店' ? 'active' : '']" @click="filterByType('酒店')">酒店</button>
+                    </div>
+                    <div class="filter-group">
+                        <span>排序：</span>
+                        <button :class="['filter-btn', sortBy === 'rating' ? 'active' : '']" @click="sortPlaces('rating')">评分</button>
+                        <button :class="['filter-btn', sortBy === 'distance' ? 'active' : '']" @click="sortPlaces('distance')">距离</button>
+                        <button :class="['filter-btn', sortBy === 'popularity' ? 'active' : '']" @click="sortPlaces('popularity')">人气</button>
+                    </div>
+                </div>
+
+                <!-- 3D地图和列表分屏显示 -->
+                <div class="split-view">
+                    <!-- 3D地图区域 -->
+                    <div class="map-view">
+                        <div class="map-container">
+                            <div class="map-controls">
+                                <button class="control-btn"><i class="fas fa-plus"></i></button>
+                                <button class="control-btn"><i class="fas fa-minus"></i></button>
+                                <button class="control-btn"><i class="fas fa-compass"></i></button>
+                            </div>
+                            <!-- 这里将集成实际的3D地图 -->
+                            <div class="map-placeholder">3D地图加载中...</div>
+                        </div>
+                    </div>
+
+                    <!-- 场所列表区域 -->
+                    <div class="places-list">
+                        <div class="place-card" v-for="place in filteredPlaces" :key="place.id">
+                            <img :src="place.image" :alt="place.name">
+                            <div class="place-info">
+                                <h3>{{ place.name }}</h3>
+                                <p class="rating">
+                                    <span class="stars">⭐⭐⭐⭐⭐</span>
+                                    <span>{{ place.rating }}</span>
+                                </p>
+                                <p class="type">{{ place.type }}</p>
+                                <p class="address">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ place.address }}
+                                </p>
+                                <p class="distance">
+                                    <i class="fas fa-walking"></i>
+                                    {{ place.distance }}
+                                </p>
+                                <button class="btn-primary" @click="viewPlaceDetails(place.id)">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航栏 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 智慧旅游管理系统</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 场所查询页面脚本 -->
+    <script src="../src/place-search.js"></script>
+</body>
+</html> 

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧旅游管理系统</title>
+    <!-- Element Plus -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="./styles/main.css">
+    <!-- 图标库 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="./assets/logo.png" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="active"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="#"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="#"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="#"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="#"><i class="fas fa-users"></i> 社交圈</a>
+                <a href="#"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 智能推荐面板 -->
+            <section class="recommendation-panel">
+                <div class="panel-header">
+                    <h2>智能推荐</h2>
+                    <div class="tabs">
+                        <button class="tab active">个性化</button>
+                        <button class="tab">热门榜单</button>
+                        <button class="tab">AI推荐</button>
+                    </div>
+                </div>
+                <div class="cards-container">
+                    <!-- 推荐卡片示例 -->
+                    <div class="card">
+                        <img src="./assets/place1.jpg" alt="景点图片">
+                        <div class="card-content">
+                            <h3>西湖风景区</h3>
+                            <p>⭐⭐⭐⭐⭐ 4.9</p>
+                            <p>游览时长：约2小时</p>
+                            <button class="btn-primary">查看详情</button>
+                        </div>
+                    </div>
+                    <!-- 更多卡片 -->
+                </div>
+            </section>
+
+            <!-- 路线规划面板 -->
+            <section class="navigation-panel">
+                <h2>多策略导航</h2>
+                <div class="navigation-options">
+                    <button class="nav-option active">最短距离</button>
+                    <button class="nav-option">最少时间</button>
+                    <button class="nav-option">AI优化</button>
+                </div>
+                <div class="map-container">
+                    <!-- 地图将在这里显示 -->
+                    <div class="map-placeholder">地图加载中...</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部导航栏 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 智慧旅游管理系统</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 自定义脚本 -->
+    <script src="./src/main.js"></script>
+</body>
+</html> 

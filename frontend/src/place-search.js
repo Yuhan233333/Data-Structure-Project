@@ -2,88 +2,117 @@
 const app = Vue.createApp({
     data() {
         return {
+            map: null,
             searchQuery: '',
-            activeType: '全部',
+            activeType: 'all',
             sortBy: 'rating',
             places: [
                 {
                     id: 1,
-                    name: '西湖风景区',
-                    type: '景点',
-                    image: '../assets/place1.jpg',
+                    name: '故宫博物院',
+                    type: 'cultural',
+                    image: '../assets/images/forbidden-city.jpg',
                     rating: 4.9,
-                    address: '浙江省杭州市西湖区龙井路1号',
-                    distance: '步行15分钟',
-                    popularity: 98
+                    address: '北京市东城区景山前街4号',
+                    distance: 0,
+                    popularity: 98,
+                    location: [39.9169, 116.3907]
                 },
                 {
                     id: 2,
-                    name: '楼外楼',
-                    type: '餐厅',
-                    image: '../assets/place2.jpg',
+                    name: '南锣鼓巷',
+                    type: 'entertainment',
+                    image: '../assets/images/nanluoguxiang.jpg',
                     rating: 4.7,
-                    address: '浙江省杭州市上城区孤山路30号',
-                    distance: '步行20分钟',
-                    popularity: 95
+                    address: '北京市东城区南锣鼓巷',
+                    distance: 2.5,
+                    popularity: 92,
+                    location: [39.9367, 116.4033]
                 },
                 {
                     id: 3,
-                    name: '杭州西子湖四季酒店',
-                    type: '酒店',
-                    image: '../assets/place3.jpg',
-                    rating: 4.8,
-                    address: '浙江省杭州市西湖区灵隐路5号',
-                    distance: '步行25分钟',
-                    popularity: 96
+                    name: '北海公园',
+                    type: 'nature',
+                    image: '../assets/images/beihai-park.jpg',
+                    rating: 4.6,
+                    address: '北京市西城区文津街1号',
+                    distance: 1.8,
+                    popularity: 85,
+                    location: [39.9263, 116.3906]
                 }
             ]
         }
     },
     computed: {
         filteredPlaces() {
-            return this.places
-                .filter(place => {
-                    // 类型筛选
-                    if (this.activeType !== '全部' && place.type !== this.activeType) {
-                        return false;
-                    }
-                    // 搜索筛选
-                    if (this.searchQuery) {
-                        const query = this.searchQuery.toLowerCase();
-                        return place.name.toLowerCase().includes(query) ||
-                               place.address.toLowerCase().includes(query);
-                    }
-                    return true;
-                })
-                .sort((a, b) => {
-                    // 排序
-                    switch (this.sortBy) {
-                        case 'rating':
-                            return b.rating - a.rating;
-                        case 'distance':
-                            return a.distance.localeCompare(b.distance);
-                        case 'popularity':
-                            return b.popularity - a.popularity;
-                        default:
-                            return 0;
-                    }
-                });
+            let result = [...this.places];
+            
+            // 按类型筛选
+            if (this.activeType !== 'all') {
+                result = result.filter(place => place.type === this.activeType);
+            }
+            
+            // 按搜索词筛选
+            if (this.searchQuery) {
+                const query = this.searchQuery.toLowerCase();
+                result = result.filter(place => 
+                    place.name.toLowerCase().includes(query) ||
+                    place.address.toLowerCase().includes(query)
+                );
+            }
+            
+            // 排序
+            switch(this.sortBy) {
+                case 'rating':
+                    result.sort((a, b) => b.rating - a.rating);
+                    break;
+                case 'distance':
+                    result.sort((a, b) => a.distance - b.distance);
+                    break;
+                case 'popularity':
+                    result.sort((a, b) => b.popularity - a.popularity);
+                    break;
+            }
+            
+            return result;
         }
     },
     methods: {
         filterByType(type) {
             this.activeType = type;
         },
-        sortPlaces(sortType) {
-            this.sortBy = sortType;
+        sortPlaces(criterion) {
+            this.sortBy = criterion;
         },
-        viewPlaceDetails(id) {
-            // 查看详情的逻辑
-            console.log('查看场所详情:', id);
+        viewPlaceDetails(placeId) {
+            const place = this.places.find(p => p.id === placeId);
+            if (place) {
+                ElementPlus.ElMessage({
+                    message: `正在查看${place.name}的详细信息`,
+                    type: 'info'
+                });
+            }
         },
         initMap() {
-            // 初始化地图的逻辑
-            console.log('初始化3D地图...');
+            // 初始化地图，设置中心点为北京市中心
+            this.map = L.map('map').setView([39.9042, 116.4074], 12);
+            
+            // 添加OpenStreetMap图层
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(this.map);
+            
+            // 为每个地点添加标记
+            this.places.forEach(place => {
+                L.marker(place.location)
+                    .bindPopup(`
+                        <h3>${place.name}</h3>
+                        <p>${place.address}</p>
+                        <p>评分: ${place.rating}</p>
+                        <button onclick="viewPlaceDetails(${place.id})" class="popup-btn">查看详情</button>
+                    `)
+                    .addTo(this.map);
+            });
         }
     },
     mounted() {
@@ -91,5 +120,10 @@ const app = Vue.createApp({
     }
 });
 
-// 挂载应用
-app.mount('#app'); 
+app.use(ElementPlus);
+app.mount('#app');
+
+// 全局函数，用于从地图弹窗中调用
+window.viewPlaceDetails = function(placeId) {
+    app._instance.proxy.viewPlaceDetails(placeId);
+}; 

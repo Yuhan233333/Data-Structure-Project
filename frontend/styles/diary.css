@@ -1,19 +1,29 @@
-/* 日记容器 */
+/**
+ * 日记助手页面样式
+ * 包含富文本编辑器、AI助手面板和图片上传预览等功能
+ */
+
+/* ====================
+   主容器布局
+==================== */
 .diary-container {
     display: flex;
     gap: 2rem;
     margin-bottom: 2rem;
 }
 
-/* 日记编辑区 */
+/* ====================
+   日记编辑区
+==================== */
 .diary-editor {
-    flex: 1;
+    flex: 1; /* 占据剩余空间 */
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     overflow: hidden;
 }
 
+/* 编辑器头部 */
 .editor-header {
     padding: 1rem;
     border-bottom: 1px solid #dcdfe6;
@@ -22,6 +32,7 @@
     align-items: center;
 }
 
+/* 标题输入框 */
 .title-input {
     font-size: 1.5rem;
     border: none;
@@ -30,6 +41,7 @@
     color: #303133;
 }
 
+/* 编辑器工具栏 */
 .editor-tools {
     display: flex;
     gap: 1rem;
@@ -57,9 +69,11 @@
     font-size: 1.1rem;
 }
 
-/* Quill编辑器自定义样式 */
+/* ====================
+   Quill编辑器自定义样式
+==================== */
 #editor {
-    height: 500px;
+    height: 500px; /* 固定编辑器高度 */
     font-size: 1.1rem;
 }
 
@@ -67,7 +81,9 @@
     font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* AI助手面板 */
+/* ====================
+   AI助手面板
+==================== */
 .ai-assistant-panel {
     width: 300px;
     background: #fff;
@@ -76,6 +92,7 @@
     overflow: hidden;
 }
 
+/* 面板头部 */
 .panel-header {
     padding: 1rem;
     background: #f5f7fa;
@@ -90,6 +107,7 @@
     color: #303133;
 }
 
+/* 关闭按钮 */
 .close-btn {
     background: none;
     border: none;
@@ -101,9 +119,10 @@
 }
 
 .close-btn:hover {
-    color: #f56c6c;
+    color: #f56c6c; /* 红色提示危险操作 */
 }
 
+/* 助手内容区 */
 .assistant-content {
     padding: 1rem;
 }
@@ -119,6 +138,7 @@
     color: #303133;
 }
 
+/* 建议列表 */
 .suggestions {
     list-style: none;
     padding: 0;
@@ -137,6 +157,7 @@
     align-items: center;
 }
 
+/* 应用建议按钮 */
 .apply-btn {
     padding: 0.3rem 0.8rem;
     background: #409EFF;
@@ -152,9 +173,10 @@
     background: #66b1ff;
 }
 
+/* 提示模板列表 */
 .prompt-list {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* 两列布局 */
     gap: 0.5rem;
 }
 
@@ -175,12 +197,14 @@
     color: #409EFF;
 }
 
-/* 图片上传预览 */
+/* ====================
+   图片上传预览
+==================== */
 .image-preview {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); /* 居中定位 */
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -191,6 +215,7 @@
     z-index: 1000;
 }
 
+/* 预览头部 */
 .preview-header {
     padding: 1rem;
     background: #f5f7fa;
@@ -200,12 +225,14 @@
     align-items: center;
 }
 
+/* 预览内容区 */
 .preview-content {
     padding: 1rem;
-    max-height: calc(80vh - 60px);
+    max-height: calc(80vh - 60px); /* 减去头部高度 */
     overflow-y: auto;
 }
 
+/* 图片网格 */
 .image-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -224,12 +251,13 @@
     object-fit: cover;
 }
 
+/* 图片操作按钮 */
 .image-actions {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.5); /* 半透明背景 */
     padding: 0.5rem;
     display: flex;
     justify-content: space-between;
@@ -238,7 +266,7 @@
 }
 
 .image-item:hover .image-actions {
-    opacity: 1;
+    opacity: 1; /* 悬停时显示操作按钮 */
 }
 
 .action-btn {
@@ -255,15 +283,18 @@
 }
 
 .action-btn.delete {
-    background: #f56c6c;
+    background: #f56c6c; /* 删除按钮使用红色 */
 }
 
 .action-btn:hover {
     opacity: 0.8;
 }
 
-/* 响应式设计 */
+/* ====================
+   响应式设计
+==================== */
 @media (max-width: 1024px) {
+    /* 在平板设备上改为垂直布局 */
     .diary-container {
         flex-direction: column;
     }
@@ -274,6 +305,7 @@
 }
 
 @media (max-width: 768px) {
+    /* 在手机设备上调整布局 */
     .editor-header {
         flex-direction: column;
         gap: 1rem;
@@ -289,7 +321,7 @@
     }
 
     #editor {
-        height: 400px;
+        height: 400px; /* 减小编辑器高度 */
     }
 
     .image-grid {

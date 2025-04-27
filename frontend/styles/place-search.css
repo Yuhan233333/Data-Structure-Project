@@ -1,4 +1,11 @@
-/* 场所查询容器 */
+/**
+ * 场所查询页面样式
+ * 包含搜索、筛选、地图和列表展示等功能的样式
+ */
+
+/* ====================
+   主容器
+==================== */
 .place-search-container {
     background-color: #fff;
     border-radius: 8px;
@@ -6,15 +13,18 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
 }
 
-/* 搜索栏 */
+/* ====================
+   搜索栏
+==================== */
 .search-bar {
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
 }
 
+/* 搜索输入框 */
 .search-bar input {
-    flex: 1;
+    flex: 1; /* 占据剩余空间 */
     padding: 0.8rem 1.2rem;
     border: 2px solid #dcdfe6;
     border-radius: 4px;
@@ -24,9 +34,10 @@
 
 .search-bar input:focus {
     outline: none;
-    border-color: #409EFF;
+    border-color: #409EFF; /* Element Plus主题色 */
 }
 
+/* 搜索按钮 */
 .search-btn {
     padding: 0.8rem 1.5rem;
     background-color: #409EFF;
@@ -41,11 +52,14 @@
     background-color: #66b1ff;
 }
 
-/* 筛选选项 */
+/* ====================
+   筛选选项
+==================== */
 .filter-options {
     margin-bottom: 2rem;
 }
 
+/* 筛选组 */
 .filter-group {
     display: flex;
     align-items: center;
@@ -58,6 +72,7 @@
     font-weight: 500;
 }
 
+/* 筛选按钮 */
 .filter-btn {
     padding: 0.5rem 1rem;
     border: 1px solid #dcdfe6;
@@ -79,15 +94,19 @@
     border-color: #409EFF;
 }
 
-/* 分屏显示 */
+/* ====================
+   分屏布局
+==================== */
 .split-view {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* 等分两列 */
     gap: 2rem;
     height: 600px;
 }
 
-/* 地图视图 */
+/* ====================
+   地图视图
+==================== */
 .map-view {
     position: relative;
     border-radius: 8px;
@@ -100,6 +119,7 @@
     position: relative;
 }
 
+/* 地图控制按钮 */
 .map-controls {
     position: absolute;
     top: 1rem;
@@ -136,12 +156,15 @@
     font-size: 1.2rem;
 }
 
-/* 场所列表 */
+/* ====================
+   场所列表
+==================== */
 .places-list {
-    overflow-y: auto;
+    overflow-y: auto; /* 内容溢出时显示滚动条 */
     padding-right: 1rem;
 }
 
+/* 场所卡片 */
 .place-card {
     background: #fff;
     border-radius: 8px;
@@ -154,9 +177,10 @@
 .place-card img {
     width: 200px;
     height: 150px;
-    object-fit: cover;
+    object-fit: cover; /* 保持图片比例填充容器 */
 }
 
+/* 场所信息 */
 .place-info {
     padding: 1rem;
     flex: 1;
@@ -168,7 +192,7 @@
 }
 
 .rating {
-    color: #f7ba2a;
+    color: #f7ba2a; /* 星级评分颜色 */
     margin-bottom: 0.5rem;
 }
 
@@ -187,8 +211,11 @@
     gap: 0.5rem;
 }
 
-/* 响应式设计 */
+/* ====================
+   响应式设计
+==================== */
 @media (max-width: 1024px) {
+    /* 在平板设备上改为单列布局 */
     .split-view {
         grid-template-columns: 1fr;
         height: auto;
@@ -200,6 +227,7 @@
 }
 
 @media (max-width: 768px) {
+    /* 在手机设备上调整卡片布局 */
     .place-card {
         flex-direction: column;
     }
@@ -209,6 +237,7 @@
         height: 200px;
     }
 
+    /* 在手机设备上调整筛选按钮布局 */
     .filter-group {
         flex-wrap: wrap;
     }

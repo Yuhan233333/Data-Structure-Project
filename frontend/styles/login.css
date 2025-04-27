@@ -1,0 +1,308 @@
+/**
+ * 登录页面样式
+ * 包含登录和注册表单的样式设计
+ */
+
+/* ====================
+   登录页面容器
+==================== */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%); /* 渐变背景 */
+    padding: 2rem;
+}
+
+.login-box {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 420px;
+    padding: 2rem;
+}
+
+/* ====================
+   Logo区域
+==================== */
+.logo-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo-section img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+}
+
+.logo-section h1 {
+    color: #303133;
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+/* ====================
+   表单切换按钮
+==================== */
+.form-tabs {
+    display: flex;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: #909399;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    color: #1890ff;
+}
+
+/* 活动标签下的指示线 */
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #1890ff;
+}
+
+/* ====================
+   表单样式
+==================== */
+.form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+/* 表单图标 */
+.form-group label {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #909399;
+}
+
+/* 输入框 */
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.5rem; /* 为图标预留空间 */
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    outline: none;
+}
+
+/* 密码可见性切换按钮 */
+.form-group .fas.fa-eye,
+.form-group .fas.fa-eye-slash {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #909399;
+    cursor: pointer;
+}
+
+/* ====================
+   验证码按钮
+==================== */
+.verify-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.4rem 1rem;
+    background: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.verify-btn:disabled {
+    background: #909399;
+    cursor: not-allowed;
+}
+
+/* ====================
+   表单选项
+==================== */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: #606266;
+}
+
+/* 复选框容器 */
+.form-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+/* 链接样式 */
+.form-options a {
+    color: #1890ff;
+    text-decoration: none;
+}
+
+.form-options a:hover {
+    color: #40a9ff;
+}
+
+/* ====================
+   提交按钮
+==================== */
+.submit-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.submit-btn:hover {
+    background: #40a9ff;
+}
+
+/* ====================
+   第三方登录
+==================== */
+.third-party-login {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.third-party-login p {
+    color: #909399;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+/* 分隔线 */
+.third-party-login p::before,
+.third-party-login p::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: #dcdfe6;
+}
+
+.third-party-login p::before {
+    left: 0;
+}
+
+.third-party-login p::after {
+    right: 0;
+}
+
+/* 第三方登录图标 */
+.login-icons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.login-icons button {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+/* 第三方图标颜色 */
+.login-icons .fa-weixin {
+    color: #07c160;
+}
+
+.login-icons .fa-qq {
+    color: #12b7f5;
+}
+
+.login-icons .fa-weibo {
+    color: #e6162d;
+}
+
+/* ====================
+   用户协议
+==================== */
+.form-agreement {
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #606266;
+}
+
+.form-agreement label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-agreement a {
+    color: #1890ff;
+    text-decoration: none;
+}
+
+.form-agreement a:hover {
+    color: #40a9ff;
+}
+
+/* ====================
+   响应式设计
+==================== */
+@media (max-width: 480px) {
+    /* 在手机设备上调整布局 */
+    .login-box {
+        padding: 1.5rem;
+    }
+
+    .logo-section h1 {
+        font-size: 1.5rem;
+    }
+
+    .form-tabs {
+        margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+
+    .login-icons {
+        gap: 1.5rem;
+    }
+} 

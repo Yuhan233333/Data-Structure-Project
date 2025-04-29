@@ -1,3 +1,11 @@
+<!--
+ * @Author: Yuhan_233 1536943817@qq.com
+ * @Date: 2025-04-17 13:54:41
+ * @LastEditTime: 2025-04-27 15:02:23
+ * @LastEditors: Yuhan_233 1536943817@qq.com
+ * @FilePath: \Data-Structure-Project\frontend\views\login.html
+ * @Description: 头部注释配置模板
+-->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -46,12 +54,6 @@
                            :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"
                            @click="showPassword = !showPassword"></i>
                     </div>
-                    <div class="form-options">
-                        <label>
-                            <input type="checkbox" v-model="loginForm.remember">
-                            记住我
-                        </label>
-                    </div>
                     <button type="submit" class="submit-btn">登录</button>
                 </form>
 
@@ -75,15 +77,6 @@
                         <input :type="showPassword ? 'text' : 'password'" 
                                v-model="registerForm.confirmPassword" 
                                placeholder="确认密码" required>
-                    </div>
-                    <div class="form-agreement">
-                        <label>
-                            <input type="checkbox" v-model="registerForm.agreement" required>
-                            我已阅读并同意
-                        </label>
-                        <a href="#" @click="showAgreement">《用户协议》</a>
-                        和
-                        <a href="#" @click="showPrivacy">《隐私政策》</a>
                     </div>
                     <button type="submit" class="submit-btn">注册</button>
                 </form>

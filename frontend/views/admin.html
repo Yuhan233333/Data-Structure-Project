@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员界面 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/admin.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+</head>
+<body>
+    <div id="app">
+        <div class="admin-container">
+            <header class="admin-header">
+                <h1>系统管理员界面</h1>
+                <button @click="logout" class="logout-btn">退出登录</button>
+            </header>
+            
+            <div class="admin-content">
+                <!-- 添加用户表单 -->
+                <div class="add-user-section">
+                    <h2>添加新用户</h2>
+                    <form @submit.prevent="handleAddUser" class="add-user-form">
+                        <div class="form-group">
+                            <label>用户名：</label>
+                            <input type="text" v-model="newUser.username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>密码：</label>
+                            <input type="password" v-model="newUser.password" required>
+                        </div>
+                        <button type="submit" class="submit-btn">添加用户</button>
+                    </form>
+                </div>
+
+                <!-- 用户列表 -->
+                <div class="user-list-section">
+                    <h2>用户管理</h2>
+                    <div class="user-list">
+                        <div v-for="user in users" :key="user.id" class="user-item">
+                            <span>{{ user.username }}</span>
+                            <button @click="deleteUser(user.id)" class="delete-btn">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 管理员页面脚本 -->
+    <script src="../src/admin.js"></script>
+</body>
+</html> 

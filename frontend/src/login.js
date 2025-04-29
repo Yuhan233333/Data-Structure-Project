@@ -5,17 +5,14 @@ const app = Vue.createApp({
         return {
             activeForm: 'login',
             showPassword: false,
-            countdown: 0,
             loginForm: {
                 username: '',
-                password: '',
-                remember: false
+                password: ''
             },
             registerForm: {
                 username: '',
                 password: '',
-                confirmPassword: '',
-                agreement: false
+                confirmPassword: ''
             }
         }
     },
@@ -38,14 +35,16 @@ const app = Vue.createApp({
                 const data = await response.json();
 
                 if (data.success) {
-                    // 如果选择了"记住我"，保存登录状态
-                    if (this.loginForm.remember) {
-                        localStorage.setItem('username', this.loginForm.username);
-                        localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('userRole', data.user.role);
+                    // 保存token和用户角色
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('role', data.user.role);
+
+                    // 根据角色跳转到不同页面
+                    if (data.user.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = '../index.html';
                     }
-                    // 登录成功后跳转到首页
-                    window.location.href = '../index.html';
                 } else {
                     alert(data.message || '用户名或密码错误');
                 }
@@ -84,8 +83,7 @@ const app = Vue.createApp({
                     this.registerForm = {
                         username: '',
                         password: '',
-                        confirmPassword: '',
-                        agreement: false
+                        confirmPassword: ''
                     };
                 } else {
                     alert(data.message || '注册失败');
@@ -96,89 +94,35 @@ const app = Vue.createApp({
             }
         },
 
-        // 发送验证码
-        async sendVerifyCode() {
-            if (this.countdown > 0) return;
-            
-            try {
-                // 验证手机号
-                if (!/^1[3-9]\d{9}$/.test(this.registerForm.phone)) {
-                    alert('请输入正确的手机号');
-                    return;
-                }
-
-                // 这里添加发送验证码的实际逻辑
-                console.log('发送验证码到:', this.registerForm.phone);
-                
-                // 开始倒计时
-                this.countdown = 60;
-                const timer = setInterval(() => {
-                    this.countdown--;
-                    if (this.countdown <= 0) {
-                        clearInterval(timer);
-                    }
-                }, 1000);
-            } catch (error) {
-                console.error('发送验证码失败:', error);
-                this.countdown = 0;
-                // 这里可以添加错误提示
-            }
-        },
-
-        // 第三方登录
-        async thirdPartyLogin(platform) {
-            try {
-                console.log('第三方登录:', platform);
-                // 这里添加第三方登录的实际逻辑
-            } catch (error) {
-                console.error('第三方登录失败:', error);
-                // 这里可以添加错误提示
-            }
-        },
-
-        // 忘记密码
-        forgotPassword() {
-            // 这里添加忘记密码的逻辑
-            console.log('忘记密码');
-        },
-
-        // 显示用户协议
-        showAgreement() {
-            alert('用户协议内容');
-        },
-
-        // 显示隐私政策
-        showPrivacy() {
-            alert('隐私政策内容');
-        },
-
         // 检查登录状态
         async checkAuth() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/check_auth`);
-                const data = await response.json();
-                
-                if (!data.isAuthenticated) {
-                    // 如果未登录且不在登录页面，则重定向到登录页
-                    if (!window.location.pathname.includes('login.html')) {
-                        window.location.href = 'login.html';
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+
+            if (token) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/check_auth`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.isAuthenticated) {
+                        // 如果已登录，根据角色跳转
+                        if (role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = '../index.html';
+                        }
                     }
+                } catch (error) {
+                    console.error('检查登录状态失败:', error);
                 }
-            } catch (error) {
-                console.error('检查登录状态失败:', error);
             }
         }
     },
     mounted() {
-        // 检查是否有保存的登录状态
-        const savedUsername = localStorage.getItem('username');
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        
-        if (isLoggedIn === 'true' && savedUsername) {
-            this.loginForm.username = savedUsername;
-            this.loginForm.remember = true;
-        }
-
         // 检查当前登录状态
         this.checkAuth();
     }

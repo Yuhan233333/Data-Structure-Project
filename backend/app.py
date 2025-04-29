@@ -1,3 +1,11 @@
+'''
+Author: Yuhan_233 1536943817@qq.com
+Date: 2025-04-17 19:37:27
+LastEditTime: 2025-04-27 15:38:47
+LastEditors: Yuhan_233 1536943817@qq.com
+FilePath: \Data-Structure-Project\backend\app.py
+Description: 头部注释配置模板
+'''
 from flask import Flask
 from flask_cors import CORS
 from auth import auth
@@ -19,8 +27,9 @@ def open_browser():
     webbrowser.open('file://' + login_path)
 
 if __name__ == '__main__':
-    # 在新线程中打开浏览器
-    import threading
-    threading.Timer(1.5, open_browser).start()
+    # 仅在主进程中打开浏览器
+    if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
+        import threading
+        threading.Timer(1.5, open_browser).start()
     # 启动Flask应用
     app.run(debug=True, port=5000) 

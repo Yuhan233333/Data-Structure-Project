@@ -1,3 +1,11 @@
+/*
+ * @Author: Yuhan_233 1536943817@qq.com
+ * @Date: 2025-04-17 14:28:41
+ * @LastEditTime: 2025-04-27 14:59:13
+ * @LastEditors: Yuhan_233 1536943817@qq.com
+ * @FilePath: \Data-Structure-Project\frontend\src\index.js
+ * @Description: 头部注释配置模板
+ */
 // 创建Vue应用
 const app = Vue.createApp({
     data() {

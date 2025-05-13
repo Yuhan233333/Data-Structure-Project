@@ -17,29 +17,13 @@
             </header>
             
             <div class="admin-content">
-                <!-- 添加用户表单 -->
-                <div class="add-user-section">
-                    <h2>添加新用户</h2>
-                    <form @submit.prevent="handleAddUser" class="add-user-form">
-                        <div class="form-group">
-                            <label>用户名：</label>
-                            <input type="text" v-model="newUser.username" required>
-                        </div>
-                        <div class="form-group">
-                            <label>密码：</label>
-                            <input type="password" v-model="newUser.password" required>
-                        </div>
-                        <button type="submit" class="submit-btn">添加用户</button>
-                    </form>
-                </div>
-
                 <!-- 用户列表 -->
                 <div class="user-list-section">
                     <h2>用户管理</h2>
                     <div class="user-list">
-                        <div v-for="user in users" :key="user.id" class="user-item">
+                        <div v-for="user in users" :key="user.username" class="user-item">
                             <span>{{ user.username }}</span>
-                            <button @click="deleteUser(user.id)" class="delete-btn">删除</button>
+                            <button @click="deleteUser(user.username)" class="delete-btn">删除</button>
                         </div>
                     </div>
                 </div>

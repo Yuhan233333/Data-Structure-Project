@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 import os
 import json
-from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
 
@@ -27,6 +26,59 @@ def save_users(users):
     with open(USERS_FILE, 'w', encoding='utf-8') as f:
         for username, password in users.items():
             f.write(f"{username}:{password}\n")
+
+@auth.route('/api/users', methods=['GET'])
+def get_users():
+    """获取所有用户列表"""
+    try:
+        users = load_users()
+        user_list = [{'username': username, 'role': 'admin' if username == 'admin' else 'user'} 
+                    for username in users.keys()]
+        return jsonify({
+            'success': True,
+            'users': user_list
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '获取用户列表失败'
+        }), 500
+
+@auth.route('/api/users/<username>', methods=['DELETE'])
+def delete_user(username):
+    """删除指定用户"""
+    try:
+        # 不允许删除管理员账号
+        if username == 'admin':
+            return jsonify({
+                'success': False,
+                'message': '不能删除管理员账号'
+            }), 403
+
+        users = load_users()
+        
+        # 检查用户是否存在
+        if username not in users:
+            return jsonify({
+                'success': False,
+                'message': '用户不存在'
+            }), 404
+            
+        # 删除用户
+        del users[username]
+        
+        # 保存更改
+        save_users(users)
+        
+        return jsonify({
+            'success': True,
+            'message': '用户删除成功'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '删除用户失败'
+        }), 500
 
 @auth.route('/api/login', methods=['POST'])
 def login():
@@ -68,8 +120,6 @@ def register():
     if username in users:
         return jsonify({'success': False, 'message': '用户名已存在'}), 400
 
-    # 在实际应用中，这里应该对密码进行加密
-    # password_hash = generate_password_hash(password)
     users[username] = password
 
     # 保存用户数据

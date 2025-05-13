@@ -1,2 +1,0 @@
-Alice,password123,1
-Bob,password456,0

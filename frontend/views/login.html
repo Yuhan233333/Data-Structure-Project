@@ -12,83 +12,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - 智慧旅游管理系统</title>
+    <!-- Element Plus -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.3.12/dist/index.css">
+    <!-- 自定义样式 -->
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/login.css">
-    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <!-- 图标库 -->
+    <link rel="stylesheet" href="//unpkg.com/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
 </head>
 <body>
-    <div id="app">
+    <!-- 加载提示 -->
+    <div id="loading" style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+        <p>页面加载中...</p>
+    </div>
+
+    <div id="app" style="display: none;">
         <div class="login-container">
             <div class="login-box">
-                <!-- Logo区域 -->
-                <div class="logo-section">
-                    <img src="../assets/logo.png" alt="Logo">
+                <div class="login-header">
+                    <img src="../assets/logo.png" alt="Logo" class="logo">
                     <h1>智慧旅游管理系统</h1>
                 </div>
-
-                <!-- 切换表单 -->
+                <!-- 表单切换 -->
                 <div class="form-tabs">
-                    <button :class="['tab-btn', activeForm === 'login' ? 'active' : '']" 
-                            @click="activeForm = 'login'">
-                        登录
-                    </button>
-                    <button :class="['tab-btn', activeForm === 'register' ? 'active' : '']" 
-                            @click="activeForm = 'register'">
-                        注册
-                    </button>
+                    <el-radio-group v-model="activeForm" size="large">
+                        <el-radio-button label="login">登录</el-radio-button>
+                        <el-radio-button label="register">注册</el-radio-button>
+                    </el-radio-group>
                 </div>
-
                 <!-- 登录表单 -->
-                <form v-if="activeForm === 'login'" class="login-form" @submit.prevent="handleLogin">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i></label>
-                        <input type="text" v-model="loginForm.username" placeholder="用户名" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i></label>
-                        <input :type="showPassword ? 'text' : 'password'" 
-                               v-model="loginForm.password" 
-                               placeholder="密码" required>
-                        <i class="fas" 
-                           :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"
-                           @click="showPassword = !showPassword"></i>
-                    </div>
-                    <button type="submit" class="submit-btn">登录</button>
-                </form>
-
+                <div v-if="activeForm === 'login'" class="login-form">
+                    <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
+                        <el-form-item prop="username">
+                            <el-input
+                                v-model="loginForm.username"
+                                placeholder="用户名"
+                                prefix-icon="User">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item prop="password">
+                            <el-input
+                                v-model="loginForm.password"
+                                type="password"
+                                placeholder="密码"
+                                prefix-icon="Lock"
+                                @keyup.enter="handleLogin">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleLogin" :loading="loading" class="submit-button">
+                                <span v-if="loading">登录中...</span>
+                                <span v-else>登录</span>
+                            </el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
                 <!-- 注册表单 -->
-                <form v-else class="register-form" @submit.prevent="handleRegister">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i></label>
-                        <input type="text" v-model="registerForm.username" placeholder="设置用户名" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i></label>
-                        <input :type="showPassword ? 'text' : 'password'" 
-                               v-model="registerForm.password" 
-                               placeholder="设置密码" required>
-                        <i class="fas" 
-                           :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"
-                           @click="showPassword = !showPassword"></i>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i></label>
-                        <input :type="showPassword ? 'text' : 'password'" 
-                               v-model="registerForm.confirmPassword" 
-                               placeholder="确认密码" required>
-                    </div>
-                    <button type="submit" class="submit-btn">注册</button>
-                </form>
+                <div v-else class="register-form">
+                    <el-form ref="registerForm" :model="registerForm" :rules="registerRules">
+                        <el-form-item prop="username">
+                            <el-input
+                                v-model="registerForm.username"
+                                placeholder="设置用户名"
+                                prefix-icon="User">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item prop="password">
+                            <el-input
+                                v-model="registerForm.password"
+                                type="password"
+                                placeholder="设置密码"
+                                prefix-icon="Lock">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item prop="confirmPassword">
+                            <el-input
+                                v-model="registerForm.confirmPassword"
+                                type="password"
+                                placeholder="确认密码"
+                                prefix-icon="Lock">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleRegister" :loading="loading" class="submit-button">
+                                <span v-if="loading">注册中...</span>
+                                <span v-else>注册</span>
+                            </el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- 错误提示 -->
+    <div id="error" style="display: none; text-align: center; padding: 20px; color: red;">
+        <p>页面加载失败，请刷新重试</p>
+    </div>
+
     <!-- Vue 3 -->
-    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
     <!-- Element Plus -->
-    <script src="https://unpkg.com/element-plus"></script>
-    <!-- 登录页面脚本 -->
+    <script src="https://unpkg.com/element-plus@2.3.12/dist/index.full.js"></script>
+    <!-- Element Plus Icons -->
+    <script src="https://unpkg.com/@element-plus/icons-vue@2.1.0/dist/index.iife.min.js"></script>
+    
+    <script>
+        // 检查资源是否加载成功
+        window.addEventListener('load', function() {
+            if (window.Vue && window.ElementPlus) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+            } else {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        });
+
+        // 处理资源加载错误
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }, true);
+    </script>
+
+    <!-- 登录脚本 -->
     <script src="../src/login.js"></script>
 </body>
 </html> 

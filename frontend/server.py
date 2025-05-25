@@ -1,27 +1,25 @@
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-import webbrowser
 import os
 
-# 设置服务器端口
-PORT = 8000
+class CORSRequestHandler(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        SimpleHTTPRequestHandler.end_headers(self)
 
-class Handler(SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=os.path.dirname(__file__), **kwargs)
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.end_headers()
 
-def run():
+def run(port=8000):
     # 切换到前端目录
-    os.chdir(os.path.dirname(__file__))
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     
-    # 创建服务器
-    server = HTTPServer(('', PORT), Handler)
-    print(f'前端服务器运行在 http://localhost:{PORT}')
-    
-    # 打开浏览器
-    webbrowser.open(f'http://localhost:{PORT}/views/login.html')
-    
-    # 启动服务器
-    server.serve_forever()
+    server_address = ('', port)
+    httpd = HTTPServer(server_address, CORSRequestHandler)
+    print(f'启动服务器在 http://localhost:{port}/')
+    httpd.serve_forever()
 
 if __name__ == '__main__':
     run() 

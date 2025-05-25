@@ -5,27 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智慧旅游管理系统</title>
     <!-- Element Plus -->
-    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.3.12/dist/index.css">
     <!-- 自定义样式 -->
     <link rel="stylesheet" href="./styles/main.css">
     <!-- 图标库 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
 </head>
 <body>
     <div id="app">
         <!-- 导航栏 -->
-        <nav class="nav-bar">
-            <div class="logo">
+        <nav class="navbar">
+            <a href="/" class="navbar-brand">
                 <img src="./assets/logo.png" alt="Logo">
                 <span>智慧旅游</span>
-            </div>
+            </a>
             <div class="nav-links">
-                <a href="#" class="active"><i class="fas fa-compass"></i> 智能推荐</a>
-                <a href="views/route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
-                <a href="views/place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
-                <a href="views/diary.html"><i class="fas fa-book"></i> 日记助手</a>
-                <a href="views/social.html"><i class="fas fa-users"></i> 社交圈</a>
-                <a href="views/profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+                <a href="#" class="nav-link active"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="views/route-planning.html" class="nav-link"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="views/place-search.html" class="nav-link"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="views/diary.html" class="nav-link"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="views/social.html" class="nav-link"><i class="fas fa-users"></i> 社交圈</a>
+                <a href="views/profile.html" class="nav-link"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+            <div class="user-info">
+                <span class="user-name">欢迎，{{ username }}</span>
+                <span class="logout-btn" @click="handleLogout">退出登录</span>
             </div>
         </nav>
 
@@ -36,24 +40,139 @@
                 <div class="panel-header">
                     <h2>智能推荐</h2>
                     <div class="tabs">
-                        <button class="tab active">个性化</button>
-                        <button class="tab">热门榜单</button>
-                        <button class="tab">AI推荐</button>
+                        <button :class="['tab', activeTab === '个性化' ? 'active' : '']" 
+                                @click="switchTab('个性化')">个性化</button>
+                        <button :class="['tab', activeTab === '热门榜单' ? 'active' : '']" 
+                                @click="switchTab('热门榜单')">热门榜单</button>
+                        <button :class="['tab', activeTab === 'AI推荐' ? 'active' : '']" 
+                                @click="switchTab('AI推荐')">AI推荐</button>
                     </div>
                 </div>
-                <div class="cards-container">
-                    <!-- 推荐卡片示例 -->
-                    <div class="card">
-                        <img src="./assets/place1.jpg" alt="景点图片">
-                        <div class="card-content">
-                            <h3>故宫博物院</h3>
-                            <p>⭐⭐⭐⭐⭐ 4.9</p>
-                            <p>游览时长：约4小时</p>
-                            <button class="btn-primary">查看详情</button>
+
+                <!-- 景点展示区域 -->
+                <div class="spots-container">
+                    <!-- 搜索和筛选区域 -->
+                    <div class="filter-section">
+                        <el-input
+                            v-model="searchQuery"
+                            placeholder="搜索景点..."
+                            prefix-icon="Search"
+                            clearable>
+                        </el-input>
+                        
+                        <div class="type-filter">
+                            <span>类型：</span>
+                            <el-radio-group v-model="selectedType" @change="handleTypeChange">
+                                <el-radio-button v-for="type in types" :key="type" :label="type">
+                                    {{ type }}
+                                </el-radio-button>
+                            </el-radio-group>
+                        </div>
+                        
+                        <div class="sort-filter">
+                            <span>排序：</span>
+                            <el-radio-group v-model="sortBy" @change="handleSortChange">
+                                <el-radio-button label="热度">热度</el-radio-button>
+                                <el-radio-button label="评分">评分</el-radio-button>
+                            </el-radio-group>
                         </div>
                     </div>
-                    <!-- 更多卡片 -->
+
+                    <!-- 加载状态 -->
+                    <div v-if="loading" class="loading-state">
+                        <el-skeleton :rows="3" animated />
+                    </div>
+
+                    <!-- 错误提示 -->
+                    <div v-else-if="error" class="error-state">
+                        <el-alert :title="error" type="error" />
+                    </div>
+
+                    <!-- 景点列表 -->
+                    <div v-else class="spots-grid">
+                        <div v-for="spot in displayedSpots" :key="spot.name" class="spot-card">
+                            <el-card :body-style="{ padding: '0px' }">
+                                <img :src="spot.image" class="spot-image">
+                                <div class="spot-info">
+                                    <h3>{{ spot.name }}</h3>
+                                    <div class="spot-rating">
+                                        <el-rate
+                                            v-model="spot.score"
+                                            disabled
+                                            show-score
+                                            text-color="#ff9900">
+                                        </el-rate>
+                                    </div>
+                                    <div class="spot-tags">
+                                        <el-tag size="small">{{ spot.type }}</el-tag>
+                                        <el-tag 
+                                            v-for="keyword in spot.keywords.slice(0, 2)"
+                                            :key="keyword"
+                                            size="small"
+                                            type="info">
+                                            {{ keyword }}
+                                        </el-tag>
+                                    </div>
+                                    <div class="spot-popularity">
+                                        热度：{{ spot.popularity }}
+                                    </div>
+                                    <el-button type="primary" @click="viewSpotDetails(spot)">
+                                        查看详情
+                                    </el-button>
+                                </div>
+                            </el-card>
+                        </div>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="pagination-container" v-if="!loading && !error && filteredSpots.length > 0">
+                        <el-pagination
+                            v-model:current-page="currentPage"
+                            :page-size="pageSize"
+                            :total="filteredSpots.length"
+                            @current-change="handlePageChange"
+                            layout="prev, pager, next">
+                        </el-pagination>
+                    </div>
+
+                    <!-- 无数据提示 -->
+                    <div v-if="!loading && !error && filteredSpots.length === 0" class="no-data">
+                        <el-empty description="暂无符合条件的景点"></el-empty>
+                    </div>
                 </div>
+
+                <!-- 景点详情对话框 -->
+                <el-dialog
+                    v-model="dialogVisible"
+                    title="景点详情"
+                    width="50%">
+                    <div v-if="selectedSpot">
+                        <div class="spot-detail">
+                            <img :src="selectedSpot.image" class="detail-image">
+                            <div class="detail-info">
+                                <h2>{{ selectedSpot.name }}</h2>
+                                <div class="detail-rating">
+                                    <el-rate v-model="selectedSpot.score" disabled show-score></el-rate>
+                                </div>
+                                <div class="detail-type">
+                                    类型：<el-tag>{{ selectedSpot.type }}</el-tag>
+                                </div>
+                                <div class="detail-keywords">
+                                    关键词：
+                                    <el-tag v-for="keyword in selectedSpot.keywords" 
+                                           :key="keyword" 
+                                           size="small" 
+                                           type="info">
+                                        {{ keyword }}
+                                    </el-tag>
+                                </div>
+                                <div class="detail-popularity">
+                                    热度指数：{{ selectedSpot.popularity }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </el-dialog>
             </section>
 
             <!-- 路线规划面板 -->
@@ -80,10 +199,12 @@
     </div>
 
     <!-- Vue 3 -->
-    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
     <!-- Element Plus -->
-    <script src="https://unpkg.com/element-plus"></script>
-    <!-- 自定义脚本 -->
-    <script src="./src/main.js"></script>
+    <script src="https://unpkg.com/element-plus@2.3.12/dist/index.full.js"></script>
+    <!-- Element Plus Icons -->
+    <script src="https://unpkg.com/@element-plus/icons-vue@2.1.0/dist/index.iife.min.js"></script>
+    <!-- 主页脚本 -->
+    <script src="./src/index.js"></script>
 </body>
 </html> 

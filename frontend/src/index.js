@@ -6,82 +6,148 @@
  * @FilePath: \Data-Structure-Project\frontend\src\index.js
  * @Description: 头部注释配置模板
  */
+// API基础URL
+const API_BASE_URL = window.location.protocol === 'file:' ? 
+    'http://localhost:5000' : '';
+
 // 创建Vue应用
 const app = Vue.createApp({
     data() {
         return {
-            map: null,
-            markers: [],
-            places: [
-                {
-                    name: '故宫博物院',
-                    location: [39.9169, 116.3907],
-                    description: '中国明清两代的皇家宫殿'
-                },
-                {
-                    name: '天安门广场',
-                    location: [39.9054, 116.3976],
-                    description: '世界上最大的城市广场'
-                },
-                {
-                    name: '颐和园',
-                    location: [40.0000, 116.2755],
-                    description: '最大的皇家园林'
-                },
-                {
-                    name: '长城八达岭',
-                    location: [40.3544, 116.0197],
-                    description: '万里长城最著名的段落'
-                },
-                {
-                    name: '天坛',
-                    location: [39.8822, 116.4066],
-                    description: '明清两代皇帝祭天的场所'
+            spots: [], // 所有景点
+            displayedSpots: [], // 当前显示的景点
+            types: [], // 景点类型
+            selectedType: '全部',
+            searchQuery: '',
+            sortBy: '热度',
+            currentPage: 1,
+            pageSize: 6, // 每页显示6个景点
+            loading: true,
+            error: null,
+            username: localStorage.getItem('username') || '游客',
+            activeTab: '个性化',
+            dialogVisible: false,
+            selectedSpot: null
+        }
+    },
+    computed: {
+        totalPages() {
+            return Math.ceil(this.filteredSpots.length / this.pageSize)
+        },
+        filteredSpots() {
+            let filtered = this.spots
+            
+            // 按类型筛选
+            if (this.selectedType !== '全部') {
+                filtered = filtered.filter(spot => spot.type === this.selectedType)
+            }
+            
+            // 按搜索关键词筛选
+            if (this.searchQuery) {
+                const query = this.searchQuery.toLowerCase()
+                filtered = filtered.filter(spot => 
+                    spot.name.toLowerCase().includes(query) ||
+                    spot.keywords.some(kw => kw.toLowerCase().includes(query))
+                )
+            }
+            
+            // 排序
+            filtered.sort((a, b) => {
+                if (this.sortBy === '热度') {
+                    return b.popularity - a.popularity
+                } else {
+                    return b.score - a.score
                 }
-            ]
+            })
+            
+            return filtered
+        }
+    },
+    methods: {
+        async fetchSpots() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/spots`)
+                const data = await response.json()
+                this.spots = data
+                this.updateDisplayedSpots()
+            } catch (error) {
+                console.error('获取景点数据失败:', error)
+                this.error = '获取景点数据失败，请刷新重试'
+            } finally {
+                this.loading = false
+            }
+        },
+        async fetchTypes() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/spots/types`)
+                const data = await response.json()
+                this.types = ['全部', ...data]
+            } catch (error) {
+                console.error('获取景点类型失败:', error)
+            }
+        },
+        updateDisplayedSpots() {
+            const start = (this.currentPage - 1) * this.pageSize
+            const end = start + this.pageSize
+            this.displayedSpots = this.filteredSpots.slice(start, end)
+        },
+        handlePageChange(page) {
+            this.currentPage = page
+            this.updateDisplayedSpots()
+            // 滚动到页面顶部
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        },
+        handleTypeChange(type) {
+            this.selectedType = type
+            this.currentPage = 1 // 重置页码
+            this.updateDisplayedSpots()
+        },
+        handleSortChange(sort) {
+            this.sortBy = sort
+            this.updateDisplayedSpots()
+        },
+        switchTab(tab) {
+            this.activeTab = tab
+            // 这里可以添加不同标签页的处理逻辑
+        },
+        viewSpotDetails(spot) {
+            this.selectedSpot = spot
+            this.dialogVisible = true
+        },
+        handleLogout() {
+            // 清除登录状态
+            localStorage.removeItem('isLoggedIn')
+            localStorage.removeItem('username')
+            localStorage.removeItem('userRole')
+            // 跳转到登录页面
+            window.location.href = './views/login.html'
+        },
+        checkAuth() {
+            // 检查是否已登录
+            const isLoggedIn = localStorage.getItem('isLoggedIn')
+            if (!isLoggedIn) {
+                window.location.href = './views/login.html'
+            }
+        }
+    },
+    watch: {
+        searchQuery() {
+            this.currentPage = 1 // 搜索时重置页码
+            this.updateDisplayedSpots()
+        },
+        filteredSpots() {
+            this.updateDisplayedSpots()
         }
     },
     mounted() {
-        this.initMap();
-    },
-    methods: {
-        initMap() {
-            // 初始化地图，设置中心点为北京市中心
-            this.map = L.map('map').setView([39.9042, 116.4074], 12);
-
-            // 添加OpenStreetMap图层
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(this.map);
-
-            // 添加景点标记
-            this.places.forEach(place => {
-                const marker = L.marker(place.location)
-                    .bindPopup(`
-                        <h3>${place.name}</h3>
-                        <p>${place.description}</p>
-                        <button onclick="showPlaceDetails('${place.name}')" class="popup-btn">查看详情</button>
-                    `)
-                    .addTo(this.map);
-                this.markers.push(marker);
-            });
-        },
-
-        resetMapView() {
-            // 重置地图视图到北京市中心
-            this.map.setView([39.9042, 116.4074], 12);
-        },
-
-        showPlaceDetails(placeName) {
-            // 显示景点详情的方法
-            const place = this.places.find(p => p.name === placeName);
-            if (place) {
-                ElementPlus.ElMessage({
-                    message: `正在查看${place.name}的详细信息`,
-                    type: 'info'
-                });
-            }
-        }
+        // 检查登录状态
+        this.checkAuth()
+        // 获取数据
+        this.fetchTypes()
+        this.fetchSpots()
     }
 });
 

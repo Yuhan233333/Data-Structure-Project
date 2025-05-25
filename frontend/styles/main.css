@@ -17,7 +17,7 @@ html {
 }
 
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.6;
     color: #333;
     background-color: #f5f7fa; /* 浅灰背景色提升可读性 */
@@ -29,68 +29,110 @@ body {
 /* ====================
    导航栏
 ==================== */
-.nav-bar {
+.navbar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
+    padding: 0.5rem 2rem;
     background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 轻微阴影提升层次感 */
-    position: fixed; /* 固定在顶部 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000; /* 确保导航栏在最上层 */
+    z-index: 1000;
 }
 
-/* Logo样式 */
-.logo {
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    margin-right: 2rem;
+    min-width: 120px; /* 确保有足够的空间显示 */
+}
+
+.navbar-brand img {
+    height: 40px;
+    width: auto;
+    margin-right: 10px;
+}
+
+.navbar-brand span {
+    color: #409EFF;
+    font-size: 1.5rem;
+    font-weight: bold;
+    white-space: nowrap; /* 防止文字换行 */
+}
+
+/* 导航链接样式 */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-left: auto;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #606266;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #409EFF;
+    background-color: rgba(64, 158, 255, 0.1);
+}
+
+/* 用户信息样式 */
+.user-info {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.logo img {
-    height: 40px;
-}
-
-.logo span {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #409EFF; /* Element Plus主题色 */
-}
-
-/* 导航链接 */
-.nav-links {
-    display: flex;
-    gap: 2rem;
-}
-
-.nav-links a {
-    text-decoration: none;
+.user-name {
     color: #606266;
-    font-weight: 500;
-    transition: color 0.3s; /* 平滑的颜色过渡 */
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
-.nav-links a:hover,
-.nav-links a.active {
-    color: #409EFF;
+.logout-btn {
+    color: #F56C6C;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.5rem 1rem;
+    }
+    
+    .navbar-brand {
+        min-width: auto;
+    }
+    
+    .nav-links {
+        gap: 1rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem;
+    }
 }
 
 /* ====================
    主内容区域
 ==================== */
 .main-content {
-    margin-top: 80px; /* 为固定导航栏留出空间 */
+    margin-top: 80px;
     padding: 2rem;
-    max-width: 1200px; /* 限制最大宽度提升可读性 */
+    max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-    min-height: calc(100vh - 140px); /* 确保内容区域填满视口 */
+    min-height: calc(100vh - 140px);
 }
 
 /* ====================
@@ -133,13 +175,41 @@ body {
     border-bottom-color: #409EFF;
 }
 
-/* ====================
-   卡片网格布局
-==================== */
+/* 筛选区域 */
+.filter-section {
+    margin-bottom: 2rem;
+}
+
+.search-box {
+    margin-bottom: 1rem;
+}
+
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.type-filter,
+.sort-filter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.type-filter span,
+.sort-filter span {
+    color: #606266;
+    font-weight: 500;
+}
+
+/* 卡片网格布局 */
 .cards-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 响应式网格布局 */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .card {
@@ -151,13 +221,13 @@ body {
 }
 
 .card:hover {
-    transform: translateY(-5px); /* 悬停时上浮效果 */
+    transform: translateY(-5px);
 }
 
 .card img {
     width: 100%;
     height: 200px;
-    object-fit: cover; /* 保持图片比例填充容器 */
+    object-fit: cover;
 }
 
 .card-content {
@@ -167,6 +237,88 @@ body {
 .card-content h3 {
     margin-bottom: 0.5rem;
     color: #303133;
+    font-size: 1.2rem;
+}
+
+.rating {
+    margin-bottom: 0.5rem;
+}
+
+.type {
+    color: #409EFF;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.keywords {
+    margin-bottom: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.keyword-tag {
+    font-size: 0.8rem;
+}
+
+.popularity {
+    color: #E6A23C;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 加载状态 */
+.loading-state {
+    padding: 2rem;
+}
+
+/* 分页容器 */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .panel-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .filter-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .type-filter,
+    .sort-filter {
+        width: 100%;
+    }
+}
+
+/* Element Plus 组件样式覆盖 */
+.el-rate {
+    display: inline-block;
+}
+
+.el-tag {
+    margin-right: 0;
+}
+
+.el-radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.el-skeleton {
+    width: 100%;
 }
 
 /* ====================
@@ -250,7 +402,7 @@ body {
 ==================== */
 @media (max-width: 768px) {
     /* 导航栏在移动端改为垂直布局 */
-    .nav-bar {
+    .navbar {
         flex-direction: column;
         padding: 1rem;
     }
@@ -284,5 +436,219 @@ body {
     /* 卡片在移动端单列显示 */
     .cards-container {
         grid-template-columns: 1fr;
+    }
+}
+
+/* 头部样式 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #fff;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    color: #303133;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.welcome-text {
+    color: #606266;
+}
+
+/* 主要内容区域 */
+.el-main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 搜索和筛选区域 */
+.search-section {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    width: 300px;
+}
+
+/* 推荐列表样式 */
+.recommendations-section {
+    margin-bottom: 2rem;
+}
+
+.spot-card {
+    margin-bottom: 1rem;
+    transition: transform 0.3s;
+}
+
+.spot-card:hover {
+    transform: translateY(-5px);
+}
+
+.spot-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.spot-info {
+    padding: 1rem;
+}
+
+.spot-info h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+}
+
+.spot-info p {
+    margin: 0.5rem 0;
+    color: #606266;
+}
+
+/* 分页样式 */
+.pagination-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .header {
+        padding: 1rem;
+    }
+
+    .search-section {
+        flex-direction: column;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .el-col {
+        width: 100%;
+    }
+}
+
+/* 景点展示区域 */
+.spots-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.filter-section {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.type-filter,
+.sort-filter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.spots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.spot-card {
+    transition: transform 0.3s;
+}
+
+.spot-card:hover {
+    transform: translateY(-5px);
+}
+
+.spot-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.spot-info {
+    padding: 1rem;
+}
+
+.spot-info h3 {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    color: #303133;
+}
+
+.spot-rating {
+    margin-bottom: 1rem;
+}
+
+.spot-tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.spot-popularity {
+    color: #909399;
+    margin-bottom: 1rem;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.loading-state,
+.error-state,
+.no-data {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .spots-container {
+        padding: 1rem;
+    }
+
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .spots-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
 } 

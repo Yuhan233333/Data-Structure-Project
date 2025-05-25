@@ -3,45 +3,88 @@
  * 包含登录和注册表单的样式设计
  */
 
+/* 防止Vue模板闪现 */
+[v-cloak] {
+    display: none;
+}
+
 /* ====================
    登录页面容器
 ==================== */
 .login-container {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%); /* 渐变背景 */
-    padding: 2rem;
+    background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+    padding: 1rem;  /* 添加内边距 */
 }
 
 .login-box {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    width: 100%;
-    max-width: 420px;
     padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;  /* 防止内容溢出 */
 }
 
-/* ====================
-   Logo区域
-==================== */
-.logo-section {
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;  /* 添加水平内边距 */
+}
+
+.login-header .logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+    object-fit: contain;  /* 确保logo完整显示 */
+}
+
+.login-header h1 {
+    color: #303133;
+    font-size: 1.5rem;
+    margin: 0;
+    white-space: nowrap;  /* 防止标题换行 */
+    overflow: hidden;  /* 隐藏溢出内容 */
+    text-overflow: ellipsis;  /* 显示省略号 */
+    padding: 0 0.5rem;  /* 添加水平内边距 */
+}
+
+/* 表单切换 */
+.form-tabs {
     text-align: center;
     margin-bottom: 2rem;
 }
 
-.logo-section img {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 1rem;
+/* 登录和注册表单 */
+.login-form,
+.register-form {
+    margin-top: 2rem;
 }
 
-.logo-section h1 {
-    color: #303133;
-    font-size: 1.8rem;
-    margin: 0;
+.submit-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+}
+
+/* Element Plus 样式覆盖 */
+.el-input__wrapper {
+    padding: 1px 11px;
+}
+
+.el-button--primary {
+    --el-button-font-weight: 400;
+    --el-button-border-color: #409EFF;
+    --el-button-bg-color: #409EFF;
+    --el-button-text-color: #fff;
+    --el-button-active-text-color: #fff;
+    --el-button-hover-text-color: #fff;
+    --el-button-active-border-color: #3a8ee6;
+    --el-button-active-bg-color: #3a8ee6;
 }
 
 /* ====================
@@ -283,26 +326,13 @@
 /* ====================
    响应式设计
 ==================== */
-@media (max-width: 480px) {
-    /* 在手机设备上调整布局 */
+@media (max-width: 768px) {
     .login-box {
+        margin: 1rem;
         padding: 1.5rem;
     }
 
-    .logo-section h1 {
-        font-size: 1.5rem;
-    }
-
-    .form-tabs {
-        margin-bottom: 1.5rem;
-    }
-
-    .tab-btn {
-        padding: 0.8rem;
-        font-size: 1rem;
-    }
-
-    .login-icons {
-        gap: 1.5rem;
+    .login-header h1 {
+        font-size: 1.3rem;
     }
 } 

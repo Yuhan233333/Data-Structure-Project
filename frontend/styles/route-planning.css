@@ -1,0 +1,345 @@
+/* ====================
+   变量定义
+==================== */
+:root {
+  /* 颜色 */
+  --color-primary: #409EFF;
+  --color-primary-hover: #66b1ff;
+  --color-bg: #f5f7fa;
+  --color-bg-panel: #fff;
+  --color-text: #333;
+  --color-text-muted: #606266;
+  --color-text-light: #909399;
+  --color-border-weak: #dcdfe6;
+  --color-border: #ebeef5;
+
+  /* 圆角 */
+  --radius: 8px;
+  --radius-sm: 4px;
+
+  /* 阴影 */
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-deep: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  /* 过渡 */
+  --transition-fast: all 0.3s;
+
+  /* 布局 */
+  --nav-height: 60px;
+}
+
+/* ====================
+   全局重置
+==================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  padding-bottom: var(--nav-height); /* 给底部留空间 */
+  position: relative;
+}
+
+/* ====================
+   顶部导航
+==================== */
+.nav-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-height);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  background-color: var(--color-bg-panel);
+  box-shadow: var(--shadow-light);
+  z-index: 1000;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.logo img {
+  height: 40px;
+}
+.logo span {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+.nav-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--color-primary);
+}
+
+/* ====================
+   主内容区域
+==================== */
+.main-content {
+  margin-top: calc(var(--nav-height) + 20px);
+  padding: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: calc(100vh - var(--nav-height) - 80px);
+}
+
+/* ====================
+   公用面板 & 卡片样式
+==================== */
+.recommendation-panel,
+.navigation-panel,
+.card {
+  background-color: var(--color-bg-panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-deep);
+  transition: var(--transition-fast);
+}
+
+.recommendation-panel,
+.navigation-panel {
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  overflow: hidden;
+}
+.card:hover {
+  transform: translateY(-5px);
+}
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.card-content {
+  padding: 1rem;
+}
+.card-content h3 {
+  margin-bottom: 0.5rem;
+  color: #303133;
+}
+
+/* ====================
+   标签页
+==================== */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.tabs {
+  display: flex;
+  gap: 1rem;
+}
+.tab {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-fast);
+}
+.tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* ====================
+   网格布局
+==================== */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+/* ====================
+   按钮
+==================== */
+.btn-primary {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* ====================
+   导航选项
+==================== */
+.navigation-options {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.nav-option {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border-weak);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-panel);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.nav-option.active {
+  background-color: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+/* ====================
+   地图容器
+==================== */
+.map-container {
+  height: 400px;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ====================
+   固定底栏
+==================== */
+.footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: var(--nav-height);
+  background-color: var(--color-bg-panel);
+  box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+  text-align: center;
+  padding: 1rem;
+}
+.footer p {
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+  margin: 0;
+}
+/* 清除默认所有 .active 的高亮（防止误匹配） */
+.nav-links a.active {
+  color: var(--color-text-muted);
+}
+
+/* 让“路线规划”始终保持高亮 */
+.nav-links a[href="route-planning.html"] {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* 保持 hover 效果 */
+.nav-links a:hover {
+  color: var(--color-primary);
+}
+.search-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 0.8rem 1.2rem;
+  border: 2px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #409EFF;
+}
+
+.search-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #409EFF;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+  background-color: #66b1ff;
+}
+
+.map-placeholder {
+  height: 400px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
+  font-size: 1.2rem;
+}
+.suggestions-box {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 300px;
+  z-index: 999;
+}
+
+.suggestion-item {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background-color: #f0f0f0;
+}
+.input-group {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ====================
+   响应式
+==================== */
+/*@media (max-width: 768px) {*/

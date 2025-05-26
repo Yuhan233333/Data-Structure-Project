@@ -1,4 +1,3 @@
 admin:admin123
-123123:123123
-test:test123
 Alice:Alice123
+bob:123123

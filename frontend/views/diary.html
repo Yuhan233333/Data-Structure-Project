@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI日记助手 - 智慧旅游管理系统</title>
+    <title>日记助手 - 智慧旅游管理系统</title>
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/diary.css">
     <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
@@ -37,9 +37,13 @@
                     <div class="editor-header">
                         <input type="text" v-model="diaryTitle" placeholder="输入日记标题..." class="title-input">
                         <div class="editor-tools">
-                            <button class="tool-btn" @click="toggleAIAssistant">
-                                <i class="fas fa-robot"></i>
-                                AI助手
+                            <button class="tool-btn" @click="newDiary">
+                                <i class="fas fa-plus"></i>
+                                新建日记
+                            </button>
+                            <button class="tool-btn" @click="showDiaryList = !showDiaryList">
+                                <i class="fas fa-list"></i>
+                                历史日记
                             </button>
                             <button class="tool-btn" @click="uploadImages">
                                 <i class="fas fa-image"></i>
@@ -49,6 +53,14 @@
                                 <i class="fas fa-save"></i>
                                 保存
                             </button>
+                            <button class="tool-btn" @click="exportDiaries">
+                                <i class="fas fa-file-export"></i>
+                                导出日记
+                            </button>
+                            <button class="tool-btn" @click="importDiaries">
+                                <i class="fas fa-file-import"></i>
+                                导入日记
+                            </button>
                         </div>
                     </div>
                     <div id="editor">
@@ -56,34 +68,59 @@
                     </div>
                 </div>
 
-                <!-- AI助手面板 -->
-                <div class="ai-assistant-panel" v-show="showAIAssistant">
-                    <div class="panel-header">
-                        <h3>AI写作助手</h3>
-                        <button class="close-btn" @click="toggleAIAssistant">
+                <!-- 历史日记列表 -->
+                <div class="diary-list" v-if="showDiaryList">
+                    <div class="list-header">
+                        <h3>历史日记</h3>
+                        <button class="close-btn" @click="showDiaryList = false">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <div class="assistant-content">
-                        <div class="suggestion-section">
-                            <h4>写作建议</h4>
-                            <ul class="suggestions">
-                                <li v-for="suggestion in writingSuggestions" :key="suggestion.id">
-                                    {{ suggestion.text }}
-                                    <button class="apply-btn" @click="applySuggestion(suggestion)">应用</button>
-                                </li>
-                            </ul>
+                    <div class="list-content">
+                        <div v-for="diary in diaryList" 
+                             :key="diary.id" 
+                             class="diary-item"
+                             :class="{ active: diary.id === currentDiaryId }">
+                            <div class="diary-item-content" @click="loadDiary(diary.id)">
+                                <h4>{{ diary.title }}</h4>
+                                <p class="diary-date">{{ new Date(diary.createdAt).toLocaleString() }}</p>
+                                <!-- 添加评分显示 -->
+                                <div class="diary-rating" v-if="diary.averageRating">
+                                    <span class="rating-label">评分：</span>
+                                    <div class="stars">
+                                        <i v-for="n in 10" 
+                                           :key="n" 
+                                           class="fas fa-star"
+                                           :style="{ color: n <= diary.averageRating ? '#ffd700' : '#ddd' }">
+                                        </i>
+                                    </div>
+                                    <span class="rating-value">{{ diary.averageRating }}</span>
+                                </div>
                         </div>
-                        <div class="prompt-section">
-                            <h4>智能提示</h4>
-                            <div class="prompt-list">
-                                <button class="prompt-btn" v-for="prompt in promptTemplates" 
-                                        :key="prompt.id" @click="usePrompt(prompt)">
-                                    {{ prompt.title }}
+                            <div class="diary-item-actions">
+                                <button class="delete-btn" @click="deleteDiary(diary.id)">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- 评分区域 -->
+                <div class="rating-section" v-if="currentDiaryId && currentUser">
+                    <h3>评分</h3>
+                    <div class="rating-stars">
+                        <i v-for="n in 10" 
+                           :key="n" 
+                           class="fas fa-star" 
+                           :class="{ 'active': n <= userRating }"
+                           @click="rateDiary(n)"
+                           @mouseover="hoverRating = n"
+                           @mouseleave="hoverRating = 0"
+                           :style="{ color: n <= (hoverRating || userRating) ? '#ffd700' : '#ddd' }">
+                        </i>
+                    </div>
+                    <span class="rating-value">{{ userRating || 0 }}/10</span>
                 </div>
             </div>
 

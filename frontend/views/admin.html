@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/admin.css">
     <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
 </head>
 <body>
     <div id="app">
@@ -24,6 +25,28 @@
                         <div v-for="user in users" :key="user.username" class="user-item">
                             <span>{{ user.username }}</span>
                             <button @click="deleteUser(user.username)" class="delete-btn">删除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 日记管理 -->
+                <div class="diary-list-section">
+                    <h2>日记管理</h2>
+                    <div class="diary-list">
+                        <div v-for="diary in diaries" :key="diary.id" class="diary-item">
+                            <div class="diary-info">
+                                <h3 class="diary-title">{{ diary.title }}</h3>
+                                <div class="diary-meta">
+                                    <span class="diary-author"><i class="fas fa-user"></i> {{ diary.author }}</span>
+                                    <span class="diary-date"><i class="fas fa-clock"></i> {{ new Date(diary.createdAt).toLocaleString() }}</span>
+                                    <span class="diary-rating" v-if="diary.ratings && diary.ratings.length > 0">
+                                        <i class="fas fa-star"></i> {{ (diary.ratings.reduce((acc, r) => acc + r.score, 0) / diary.ratings.length).toFixed(1) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <button @click="deleteDiary(diary.id)" class="delete-btn">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
                         </div>
                     </div>
                 </div>

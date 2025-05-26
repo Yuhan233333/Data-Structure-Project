@@ -1,11 +1,55 @@
 from flask import Blueprint, request, jsonify
 import os
 import json
+from datetime import datetime
 
 auth = Blueprint('auth', __name__)
 
 # 用户数据文件路径
 USERS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'users.txt')
+USER_PROFILES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'users')
+
+# 确保用户配置文件目录存在
+os.makedirs(USER_PROFILES_DIR, exist_ok=True)
+
+def get_user_profile_path(username):
+    """获取用户配置文件的路径"""
+    return os.path.join(USER_PROFILES_DIR, f"{username}.json")
+
+def load_user_profile(username):
+    """加载用户配置文件"""
+    profile_path = get_user_profile_path(username)
+    if os.path.exists(profile_path):
+        with open(profile_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {
+        'username': username,
+        'nickname': '',
+        'email': '',
+        'phone': '',
+        'bio': '',
+        'avatar': None,
+        'preferences': {
+            'theme': 'light',
+            'emailNotification': False,
+            'smsNotification': False
+        },
+        'statistics': {
+            'visitedPlaces': 0,
+            'diaryCount': 0,
+            'routeCount': 0,
+            'averageRating': 0
+        },
+        'createdAt': datetime.now().isoformat(),
+        'updatedAt': datetime.now().isoformat()
+    }
+
+def save_user_profile(username, profile):
+    """保存用户配置文件"""
+    profile_path = get_user_profile_path(username)
+    profile['updatedAt'] = datetime.now().isoformat()
+    with open(profile_path, 'w', encoding='utf-8') as f:
+        json.dump(profile, f, ensure_ascii=False, indent=2)
 
 def load_users():
     """从文件加载用户数据"""
@@ -132,6 +176,218 @@ def register():
 @auth.route('/api/check_auth', methods=['GET'])
 def check_auth():
     """检查用户是否已登录"""
-    # 这里应该实现会话验证逻辑
-    # 目前仅返回示例数据
-    return jsonify({'isAuthenticated': False}) 
+    # 从请求头中获取认证信息
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({'isAuthenticated': False}), 401
+
+    try:
+        # 获取用户名
+        username = request.headers.get('X-Username')
+        if not username:
+            return jsonify({'isAuthenticated': False}), 401
+
+        # 检查用户是否存在
+        users = load_users()
+        if username not in users:
+            return jsonify({'isAuthenticated': False}), 401
+
+        return jsonify({
+            'isAuthenticated': True,
+            'user': {
+                'username': username,
+                'role': 'admin' if username == 'admin' else 'user'
+            }
+        })
+    except Exception as e:
+        return jsonify({'isAuthenticated': False}), 401
+
+@auth.route('/api/users/<username>/profile', methods=['GET'])
+def get_user_profile(username):
+    """获取用户个人信息"""
+    try:
+        # 检查用户是否存在
+        users = load_users()
+        if username not in users:
+            return jsonify({
+                'success': False,
+                'message': '用户不存在'
+            }), 404
+
+        # 加载用户配置文件
+        profile = load_user_profile(username)
+        return jsonify({
+            'success': True,
+            'profile': profile
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '获取用户信息失败'
+        }), 500
+
+@auth.route('/api/users/<username>/profile', methods=['PUT'])
+def update_user_profile(username):
+    """更新用户个人信息"""
+    try:
+        # 检查用户是否存在
+        users = load_users()
+        if username not in users:
+            return jsonify({
+                'success': False,
+                'message': '用户不存在'
+            }), 404
+
+        # 获取请求数据
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': '无效的请求数据'
+            }), 400
+
+        # 加载现有配置文件
+        profile = load_user_profile(username)
+
+        # 更新允许修改的字段
+        allowed_fields = ['nickname', 'email', 'phone', 'bio']
+        for field in allowed_fields:
+            if field in data:
+                profile[field] = data[field]
+
+        # 保存更新后的配置文件
+        save_user_profile(username, profile)
+
+        return jsonify({
+            'success': True,
+            'message': '个人信息更新成功',
+            'profile': profile
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '更新用户信息失败'
+        }), 500
+
+@auth.route('/api/users/<username>/password', methods=['PUT'])
+def change_password(username):
+    """修改用户密码"""
+    try:
+        # 检查用户是否存在
+        users = load_users()
+        if username not in users:
+            return jsonify({
+                'success': False,
+                'message': '用户不存在'
+            }), 404
+
+        # 获取请求数据
+        data = request.get_json()
+        if not data or 'oldPassword' not in data or 'newPassword' not in data:
+            return jsonify({
+                'success': False,
+                'message': '无效的请求数据'
+            }), 400
+
+        # 验证旧密码
+        if users[username] != data['oldPassword']:
+            return jsonify({
+                'success': False,
+                'message': '当前密码错误'
+            }), 401
+
+        # 更新密码
+        users[username] = data['newPassword']
+        save_users(users)
+
+        return jsonify({
+            'success': True,
+            'message': '密码修改成功'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '修改密码失败'
+        }), 500
+
+@auth.route('/api/users/<username>/preferences', methods=['GET'])
+def get_user_preferences(username):
+    """获取用户偏好设置"""
+    try:
+        profile = load_user_profile(username)
+        return jsonify({
+            'success': True,
+            'preferences': profile['preferences']
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '获取偏好设置失败'
+        }), 500
+
+@auth.route('/api/users/<username>/preferences', methods=['PUT'])
+def update_user_preferences(username):
+    """更新用户偏好设置"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': '无效的请求数据'
+            }), 400
+
+        profile = load_user_profile(username)
+        profile['preferences'].update(data)
+        save_user_profile(username, profile)
+
+        return jsonify({
+            'success': True,
+            'message': '偏好设置更新成功',
+            'preferences': profile['preferences']
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '更新偏好设置失败'
+        }), 500
+
+@auth.route('/api/users/<username>/statistics', methods=['GET'])
+def get_user_statistics(username):
+    """获取用户使用统计"""
+    try:
+        profile = load_user_profile(username)
+        return jsonify({
+            'success': True,
+            'statistics': profile['statistics']
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '获取使用统计失败'
+        }), 500
+
+@auth.route('/api/users/<username>/statistics', methods=['PUT'])
+def update_user_statistics(username):
+    """更新用户使用统计"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': '无效的请求数据'
+            }), 400
+
+        profile = load_user_profile(username)
+        profile['statistics'].update(data)
+        save_user_profile(username, profile)
+
+        return jsonify({
+            'success': True,
+            'message': '使用统计更新成功',
+            'statistics': profile['statistics']
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '更新使用统计失败'
+        }), 500 

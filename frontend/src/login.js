@@ -47,9 +47,13 @@ const app = Vue.createApp({
                 const data = await response.json();
 
                 if (data.success) {
+                    // 生成一个简单的token（实际应用中应该使用JWT等更安全的方式）
+                    const token = btoa(`${data.user.username}:${Date.now()}`);
+                    
                     // 保存认证信息到本地存储
-                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('token', token);
                     localStorage.setItem('role', data.user.role);
+                    localStorage.setItem('username', data.user.username);
 
                     // 根据用户角色跳转到不同页面
                     if (data.user.role === 'admin') {
@@ -58,11 +62,11 @@ const app = Vue.createApp({
                         window.location.href = '../index.html'; // 普通用户跳转到首页
                     }
                 } else {
-                    alert(data.message || '用户名或密码错误');
+                    ElementPlus.ElMessage.error(data.message || '用户名或密码错误');
                 }
             } catch (error) {
                 console.error('登录失败:', error);
-                alert('登录失败，请检查网络连接');
+                ElementPlus.ElMessage.error('登录失败，请检查网络连接');
             }
         },
 

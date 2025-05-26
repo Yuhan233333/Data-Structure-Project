@@ -1,7 +1,7 @@
 '''
 Author: Yuhan_233 1536943817@qq.com
 Date: 2025-04-17 19:37:27
-LastEditTime: 2025-04-27 15:52:35
+LastEditTime: 2025-05-21 16:02:19
 LastEditors: Yuhan_233 1536943817@qq.com
 FilePath: \Data-Structure-Project\backend\app.py
 Description: 头部注释配置模板
@@ -9,6 +9,7 @@ Description: 头部注释配置模板
 from flask import Flask
 from flask_cors import CORS
 from auth import auth
+from map_service import map_service  # 导入地图服务
 import webbrowser
 import os
 
@@ -18,6 +19,7 @@ CORS(app)
 
 # 注册认证蓝图
 app.register_blueprint(auth)
+app.register_blueprint(map_service)  # 注册地图服务蓝图
 
 def open_browser():
     """打开浏览器访问登录页面"""

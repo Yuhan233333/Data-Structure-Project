@@ -1,3 +1,11 @@
+'''
+Author: Yuhan_233 1536943817@qq.com
+Date: 2025-04-17 19:37:24
+LastEditTime: 2025-05-21 16:40:52
+LastEditors: Yuhan_233 1536943817@qq.com
+FilePath: \Data-Structure-Project\backend\auth_manager.py
+Description: 头部注释配置模板
+'''
 class AuthManager:
     def __init__(self, user_manager):
         self.user_manager = user_manager

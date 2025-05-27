@@ -260,7 +260,7 @@ body {
 }
 
 /* 让“路线规划”始终保持高亮 */
-.nav-links a[href="route-planning.html"] {
+.nav-links a[href="route-planning1.html"] {
   color: var(--color-primary);
   font-weight: 600;
 }
@@ -339,7 +339,4 @@ body {
 }
 
 
-/* ====================
-   响应式
-==================== */
-/*@media (max-width: 768px) {*/
+

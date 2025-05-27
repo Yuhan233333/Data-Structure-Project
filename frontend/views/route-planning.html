@@ -6,7 +6,7 @@
   <title>智慧旅游管理系统</title>
 
   <!-- 自定义样式 -->
-  <link rel="stylesheet" href="../styles/route-planning.css" />
+  <link rel="stylesheet" href="../styles/route-planning1.css" />
   <link rel="stylesheet" href="./styles/main.css" />
   <!-- 图标库 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
@@ -28,68 +28,19 @@
         <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
       </div>
     </nav>
-
-    <!-- 主内容区域 -->
-    <div class="main-content">
-      <!-- 搜索栏 -->
-      <div class="search-bar">
-  <div class="input-group">
-    <input type="text" id="startInput" placeholder="请输入起点" oninput="searchSuggestions(this.value, 'start')">
-    <div id="startSuggestions" class="suggestions-box"></div>
+<div class="main-content">
+  <div class="route-choice-panel">
+    <h2>请选择导航类型</h2>
+    <div class="route-choice-buttons">
+      <a href="route-planning1.html?mode=internal" class="btn-primary">内部导航</a>
+      <a href="route-planning1.html?mode=external" class="btn-primary">外部导航</a>
+    </div>
   </div>
-
-  <div class="input-group">
-    <input type="text" id="endInput" placeholder="请输入终点" oninput="searchSuggestions(this.value, 'end')">
-    <div id="endSuggestions" class="suggestions-box"></div>
-  </div>
-
-  <button class="search-btn" onclick="viewNavigation()">查看导航</button>
 </div>
 
-
-      <!-- 可添加地图或其他展示内容 -->
-      <div class="map-placeholder">地图展示区域（可留空或放静态图）</div>
-    </div>
-
-    <!-- 底部 -->
-    <footer class="footer">
-      <div class="footer-content">
-        <p>&copy; 2024 智慧旅游管理系统</p>
-      </div>
-    </footer>
-  </div>
-  <!-- 原生 JavaScript -->
-
-<!-- 在 HTML 最底部加入脚本 -->
 <script>
-  async function viewNavigation() {
-    const start = document.getElementById("startInput").value.trim();
-    const end = document.getElementById("endInput").value.trim();
-
-    if (!start || !end) {
-      alert("请输入完整的起点和终点");
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5000/api/generate-map", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ start, end })
-      });
-
-      const result = await res.json();
-      if (result.status === "success") {
-        // 地图生成成功，跳转到 route-planning1.html 展示地图
-        window.location.href = "route-planning1.html";
-      } else {
-        alert("地图生成失败：" + result.message);
-      }
-    } catch (error) {
-      alert("请求失败，请检查 Flask 后端是否已运行");
-    }
+  function navigate(type) {
+    // 跳转并携带导航类型参数
+    window.location.href = `route-planning1.html?type=${type}`;
   }
 </script>
-<script src="../src/route-planning.js"></script>
-</body>
-</html>

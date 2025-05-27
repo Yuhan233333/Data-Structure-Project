@@ -28,20 +28,27 @@ def serve_static(path):
     return send_from_directory(frontend_dir, path)
 # 注册认证蓝图
 app.register_blueprint(auth)
-@app.route('/api/generate-map', methods=['POST'])
+
+
 @app.route('/api/generate-map', methods=['POST'])
 def generate_map():
-    data = request.json
+    data = request.get_json()
     start = data.get('start')
     end = data.get('end')
+    mode = data.get('mode', 'internal')  # 默认内部导航
+
     try:
-        print("⏳ 开始生成地图")
-        generate_route_map(start, end)
-        print("✅ 地图生成完成")
-        return jsonify({"status": "success"})
+        generate_route_map(start, end, mode)  # 传入 mode
+        return jsonify({'status': 'success'})
     except Exception as e:
-        print("❌ 地图生成失败：", e)
+        return jsonify({'status': 'error', 'message': str(e)})
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
 def open_browser():
     """打开浏览器访问登录页面"""
     # 获取前端登录页面的绝对路径

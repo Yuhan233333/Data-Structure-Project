@@ -31,11 +31,17 @@ const app = Vue.createApp({
                 });
             }
             const query = this.searchQuery.toLowerCase();
-            // 只匹配标题或作者
-            return this.diaries.filter(diary => 
-                diary.title.toLowerCase().includes(query) ||
-                diary.author.toLowerCase().includes(query)
-            ).sort((a, b) => {
+            // 支持全文搜索：标题、作者、内容
+            return this.diaries.filter(diary => {
+                // 标题、作者、内容都转为小写后进行匹配
+                const title = diary.title ? diary.title.toLowerCase() : '';
+                const author = diary.author ? diary.author.toLowerCase() : '';
+                // diary.content 可能包含HTML标签，先去除标签再搜索
+                let content = diary.content ? diary.content : '';
+                // 用正则去除HTML标签
+                content = content.replace(/<[^>]+>/g, '').toLowerCase();
+                return title.includes(query) || author.includes(query) || content.includes(query);
+            }).sort((a, b) => {
                 const avgA = this.averageRating(a);
                 const avgB = this.averageRating(b);
                 return avgB - avgA;

@@ -24,6 +24,10 @@ def place_search():
 def frontend_static(filename):
     return send_from_directory('../frontend', filename)
 
+@app.route('/backend/<path:filename>')
+def backend_static(filename):
+    return send_from_directory('.', filename)
+
 def open_browser():
     """打开浏览器访问登录页面"""
     # 获取前端登录页面的绝对路径

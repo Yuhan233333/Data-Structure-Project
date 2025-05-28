@@ -88,6 +88,37 @@ const app = Vue.createApp({
         },
 
         /**
+         * 退出登录
+         */
+        logout() {
+            // 显示确认对话框
+            ElementPlus.ElMessageBox.confirm(
+                '确定要退出登录吗？',
+                '提示',
+                {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }
+            ).then(() => {
+                // 清除本地存储的用户信息
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                localStorage.removeItem('role');
+                
+                // 显示退出成功消息
+                ElementPlus.ElMessage.success('退出登录成功');
+                
+                // 跳转到登录页面
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 500);
+            }).catch(() => {
+                // 用户取消退出，不做任何操作
+            });
+        },
+
+        /**
          * 修改密码
          */
         async changePassword() {

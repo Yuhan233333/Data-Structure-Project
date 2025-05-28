@@ -285,4 +285,174 @@ body {
     .cards-container {
         grid-template-columns: 1fr;
     }
+}
+
+/* ====================
+   筛选选项
+==================== */
+.filter-options {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group span {
+    font-weight: 500;
+    color: #606266;
+    margin-right: 0.5rem;
+}
+
+.filter-btn {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover {
+    border-color: #c6e2ff;
+    color: #409EFF;
+}
+
+.filter-btn.active {
+    background-color: #ecf5ff;
+    color: #409EFF;
+    border-color: #409EFF;
+}
+
+/* ====================
+   关键词标签
+==================== */
+.keywords-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0.5rem 0;
+}
+
+.keyword-tag {
+    background-color: #ecf5ff;
+    color: #409EFF;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    border: 1px solid #d9ecff;
+}
+
+/* ====================
+   加载状态和无数据提示
+==================== */
+.loading-container,
+.no-data-container {
+    text-align: center;
+    padding: 3rem 0;
+    color: #909399;
+}
+
+.loading-container i,
+.no-data-container i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.loading-container p,
+.no-data-container p {
+    font-size: 1.2rem;
+}
+
+.fa-spinner {
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ====================
+   刷新按钮
+==================== */
+.refresh-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.refresh-btn {
+    background-color: #409EFF;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.refresh-btn:hover {
+    background-color: #66b1ff;
+}
+
+.refresh-btn i {
+    font-size: 0.9rem;
+}
+
+/* ====================
+   评分星星和人气显示
+==================== */
+.rating-stars {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.rating-stars i {
+    margin-right: 2px;
+    color: #dcdfe6;
+}
+
+.rating-stars i.filled {
+    color: #f0ad4e;
+}
+
+.rating-stars span {
+    margin-left: 5px;
+    font-weight: 500;
+}
+
+.place-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.popularity {
+    color: #e74c3c;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.popularity i {
+    font-size: 0.9rem;
 } 

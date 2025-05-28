@@ -86,6 +86,17 @@
     text-align: center;
 }
 
+.nav-item.logout-btn {
+    margin-top: 1rem;
+    background-color: #f56c6c;
+    color: white;
+}
+
+.nav-item.logout-btn:hover {
+    background-color: #f78989;
+    color: white;
+}
+
 /* 右侧内容区样式 */
 .profile-content {
     flex: 1;

@@ -9,7 +9,15 @@ const app = Vue.createApp({
             currentPage: 1,
             pageSize: 10,
             loading: false,
-            totalCount: 0
+            totalCount: 0,
+            // 详情弹窗相关
+            showDetailModal: false,
+            selectedPlace: {},
+            foods: [],
+            foodSortBy: 'rating', // 默认使用评分排序
+            // 菜品详情弹窗相关
+            showFoodDetailModal: false,
+            selectedFood: {}
         }
     },
     computed: {
@@ -196,6 +204,75 @@ const app = Vue.createApp({
         handleImageError(e) {
             // 当图片加载失败时，替换为默认图片
             e.target.src = '../assets/place1.jpg';
+        },
+        
+        // 显示详情弹窗
+        async showDetail(place) {
+            this.selectedPlace = {...place};
+            this.showDetailModal = true;
+            
+            // 获取随机菜品数据
+            await this.fetchRandomFoods();
+            
+            // 阻止页面滚动
+            document.body.style.overflow = 'hidden';
+        },
+        
+        // 显示菜品详情弹窗
+        showFoodDetail(food) {
+            this.selectedFood = {...food};
+            this.showFoodDetailModal = true;
+            
+            // 阻止页面滚动
+            document.body.style.overflow = 'hidden';
+        },
+        
+        // 关闭菜品详情弹窗
+        closeFoodDetail() {
+            this.showFoodDetailModal = false;
+            
+            // 不要恢复页面滚动，因为景点详情弹窗仍然打开
+        },
+        
+        // 关闭详情弹窗
+        closeDetail() {
+            this.showDetailModal = false;
+            this.foods = [];
+            
+            // 确保菜品详情弹窗也关闭
+            this.showFoodDetailModal = false;
+            
+            // 恢复页面滚动
+            document.body.style.overflow = 'auto';
+        },
+        
+        // 获取随机菜品数据
+        async fetchRandomFoods() {
+            try {
+                const response = await fetch(`http://localhost:5000/api/foods/random?count=6&sort_by=${this.foodSortBy}&place_name=${encodeURIComponent(this.selectedPlace.name)}`);
+                if (response.ok) {
+                    this.foods = await response.json();
+                } else {
+                    console.error('获取菜品数据失败');
+                    ElementPlus.ElMessage.error('获取菜品数据失败');
+                }
+            } catch (error) {
+                console.error('获取菜品数据出错:', error);
+                ElementPlus.ElMessage.error('获取菜品数据失败');
+            }
+        },
+        
+        // 排序菜品
+        sortFoods(sortBy) {
+            this.foodSortBy = sortBy;
+            
+            if (sortBy === 'rating') {
+                this.foods.sort((a, b) => b.rating - a.rating);
+            } else if (sortBy === 'popularity') {
+                this.foods.sort((a, b) => b.popularity - a.popularity);
+            } else if (sortBy === 'distance') {
+                this.foods.sort((a, b) => a.distance - b.distance);
+            }
         }
     },
     mounted() {

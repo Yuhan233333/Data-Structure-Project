@@ -177,4 +177,263 @@
 .rating .rating-value {
     font-weight: 500;
     margin-left: 0.3rem;
+}
+
+/* 详情弹窗样式 */
+.detail-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.detail-content {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.detail-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #606266;
+    transition: color 0.3s;
+}
+
+.detail-close:hover {
+    color: #409EFF;
+}
+
+.detail-header {
+    display: flex;
+    margin-bottom: 2rem;
+}
+
+.detail-image {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 2rem;
+}
+
+.detail-info {
+    flex: 1;
+}
+
+.detail-info h2 {
+    margin-bottom: 1rem;
+    color: #303133;
+    font-size: 1.8rem;
+}
+
+.detail-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.detail-rating .stars {
+    margin-right: 1rem;
+}
+
+.detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.detail-meta p {
+    display: flex;
+    align-items: center;
+    color: #606266;
+}
+
+.detail-meta p i {
+    margin-right: 0.5rem;
+    width: 16px;
+    text-align: center;
+}
+
+.detail-keywords {
+    margin: 1rem 0;
+}
+
+.detail-section {
+    margin-top: 2rem;
+}
+
+.detail-section h3 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    color: #303133;
+    display: flex;
+    align-items: center;
+}
+
+.detail-section h3 i {
+    margin-right: 0.5rem;
+}
+
+.food-filter {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.food-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.food-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.food-card:hover {
+    transform: translateY(-5px);
+}
+
+.food-info {
+    padding: 1rem;
+}
+
+.food-info h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: #303133;
+}
+
+.food-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.food-description {
+    font-size: 0.9rem;
+    color: #606266;
+    margin-top: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 菜品详情弹窗样式 */
+.food-detail-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100; /* 比景点详情弹窗层级更高 */
+}
+
+.food-detail-content {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 70%;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.food-detail-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #606266;
+    transition: color 0.3s;
+}
+
+.food-detail-close:hover {
+    color: #409EFF;
+}
+
+.food-detail-header {
+    display: flex;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.food-detail-image {
+    width: 250px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.food-detail-info {
+    flex: 1;
+}
+
+.food-detail-info h3 {
+    margin-bottom: 1rem;
+    color: #303133;
+    font-size: 1.6rem;
+}
+
+.food-detail-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.food-detail-meta p {
+    display: flex;
+    align-items: center;
+    color: #606266;
+}
+
+.food-detail-meta p i {
+    margin-right: 0.5rem;
+    color: #f0ad4e;
+}
+
+.food-detail-description {
+    line-height: 1.6;
+    color: #606266;
+}
+
+/* 修改菜品卡片，添加可点击样式 */
+.food-card {
+    cursor: pointer;
+}
+
+.food-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 } 

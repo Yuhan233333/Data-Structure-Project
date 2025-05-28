@@ -72,9 +72,97 @@
                             <div class="keywords-container">
                                 <span class="keyword-tag" v-for="keyword in place.keywords" :key="keyword">{{ keyword }}</span>
                             </div>
-                            <button class="btn-primary">
+                            <button class="btn-primary" @click="showDetail(place)">
                                 <i class="fas fa-info-circle"></i> 查看详情
                             </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 详情弹窗 -->
+                <div class="detail-modal" v-if="showDetailModal" @click.self="closeDetail">
+                    <div class="detail-content">
+                        <div class="detail-close" @click="closeDetail">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        
+                        <div class="detail-header">
+                            <img :src="selectedPlace.image || '../assets/default.jpg'" :alt="selectedPlace.name" class="detail-image" @error="handleImageError">
+                            <div class="detail-info">
+                                <h2>{{ selectedPlace.name }}</h2>
+                                <div class="detail-rating">
+                                    <span class="stars">
+                                        <i v-for="n in 5" :key="n" 
+                                           :class="[
+                                               'fas', 
+                                               n <= Math.floor(selectedPlace.rating) ? 'fa-star' : 
+                                               (n - 0.5 <= selectedPlace.rating ? 'fa-star-half-alt' : 'fa-star'),
+                                               n <= Math.floor(selectedPlace.rating) || n - 0.5 <= selectedPlace.rating ? 'filled' : ''
+                                           ]"
+                                        ></i>
+                                    </span>
+                                    <span class="rating-value">{{ parseFloat(selectedPlace.rating).toFixed(1) }}</span>
+                                </div>
+                                
+                                <div class="detail-meta">
+                                    <p><i class="fas fa-tag"></i> {{ selectedPlace.type }}</p>
+                                    <p><i class="fas fa-fire"></i> 人气: {{ parseFloat(selectedPlace.popularity).toFixed(1) }}</p>
+                                </div>
+                                
+                                <div class="detail-keywords">
+                                    <span class="keyword-tag" v-for="keyword in selectedPlace.keywords" :key="keyword">{{ keyword }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 推荐菜品部分 -->
+                        <div class="detail-section">
+                            <h3><i class="fas fa-utensils"></i> 推荐菜品</h3>
+                            
+                            <div class="food-filter">
+                                <button class="filter-btn" :class="{active: foodSortBy === 'rating'}" @click="sortFoods('rating')">按评分</button>
+                                <button class="filter-btn" :class="{active: foodSortBy === 'popularity'}" @click="sortFoods('popularity')">按热度</button>
+                                <button class="filter-btn" :class="{active: foodSortBy === 'distance'}" @click="sortFoods('distance')">按距离</button>
+                            </div>
+                            
+                            <div class="food-cards">
+                                <div class="food-card" v-for="food in foods" :key="food.name" @click="showFoodDetail(food)">
+                                    <div class="food-info">
+                                        <h4>{{ food.name }}</h4>
+                                        <div class="food-meta">
+                                            <span><i class="fas fa-star"></i> {{ food.rating }}</span>
+                                            <span><i class="fas fa-fire"></i> {{ food.popularity }}</span>
+                                            <span><i class="fas fa-map-marker-alt"></i> {{ food.distance }}km</span>
+                                        </div>
+                                        <div class="food-description">{{ food.description }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 菜品详情弹窗 -->
+                <div class="food-detail-modal" v-if="showFoodDetailModal" @click.self="closeFoodDetail">
+                    <div class="food-detail-content">
+                        <div class="food-detail-close" @click="closeFoodDetail">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        
+                        <div class="food-detail-header">
+                            <img src="/backend/food.jpg" :alt="selectedFood.name" class="food-detail-image">
+                            <div class="food-detail-info">
+                                <h3>{{ selectedFood.name }}</h3>
+                                <div class="food-detail-meta">
+                                    <p><i class="fas fa-star"></i> 评分: {{ selectedFood.rating }}</p>
+                                    <p><i class="fas fa-fire"></i> 热度: {{ selectedFood.popularity }}</p>
+                                    <p><i class="fas fa-map-marker-alt"></i> 距离: {{ selectedFood.distance }}km</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="food-detail-description">
+                            {{ selectedFood.description }}
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 import csv
 import os
 import heapq
+import random
 from flask import Blueprint, jsonify, request
 from typing import List, Dict, Callable, Any
 
@@ -228,4 +229,77 @@ def update_place_interest():
     if recommendation_system.update_popularity(name, increment):
         return jsonify({'success': True, 'message': '更新成功'})
     else:
-        return jsonify({'success': False, 'message': '找不到该景点'}), 404 
+        return jsonify({'success': False, 'message': '找不到该景点'}), 404
+
+@place_bp.route('/api/foods/random', methods=['GET'])
+def get_random_foods():
+    """获取随机菜品数据"""
+    try:
+        # 获取请求参数
+        count = request.args.get('count', default=6, type=int)  # 默认改为6个
+        sort_by = request.args.get('sort_by', default='rating', type=str)
+        place_name = request.args.get('place_name', default='', type=str)  # 新增景点名称参数
+        
+        # 读取菜品数据
+        foods = []
+        food_file = os.path.join(os.path.dirname(__file__), 'Food_dataset.csv')
+        
+        encodings = ['utf-8', 'utf-8-sig', 'gbk', 'gb2312']
+        content = None
+        for encoding in encodings:
+            try:
+                with open(food_file, 'r', encoding=encoding) as file:
+                    content = file.read()
+                    break
+            except UnicodeDecodeError:
+                continue
+                
+        if content is None:
+            return jsonify({'error': '无法读取菜品数据文件'}), 500
+            
+        import io
+        reader = csv.reader(io.StringIO(content))
+        header = next(reader)  # 跳过表头
+        
+        # 读取所有菜品
+        for row in reader:
+            try:
+                food = {
+                    'name': row[0],
+                    'description': row[1],
+                    'rating': float(row[2]),
+                    'popularity': float(row[3]),
+                    'distance': float(row[4])
+                }
+                foods.append(food)
+            except Exception as e:
+                print(f"处理菜品数据时出错: {e}")
+                continue
+        
+        # 使用景点名称作为随机种子，确保相同景点每次获取的菜品相同
+        if place_name:
+            # 将景点名称转换为数字种子
+            seed = sum(ord(c) for c in place_name)
+            random.seed(seed)
+        
+        # 随机选择菜品
+        if len(foods) <= count:
+            selected_foods = foods
+        else:
+            # 使用固定种子进行随机选择
+            selected_foods = random.sample(foods, count)
+            # 重置随机种子，避免影响其他功能
+            random.seed()
+        
+        # 根据排序方式进行排序
+        if sort_by == 'rating':
+            selected_foods.sort(key=lambda x: x['rating'], reverse=True)
+        elif sort_by == 'popularity':
+            selected_foods.sort(key=lambda x: x['popularity'], reverse=True)
+        elif sort_by == 'distance':
+            selected_foods.sort(key=lambda x: x['distance'])
+        
+        return jsonify(selected_foods)
+    except Exception as e:
+        print(f"获取随机菜品数据时出错: {e}")
+        return jsonify({'error': '获取随机菜品数据失败'}), 500 

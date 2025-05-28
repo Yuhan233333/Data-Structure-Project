@@ -4,127 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>场所查询 - 智慧旅游管理系统</title>
-    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
-    <link rel="stylesheet" href="../styles/place-search.css">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/place-search.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
 </head>
 <body>
     <div id="app">
         <nav class="nav-bar">
-            <div class="logo">
-                <img src="../assets/logo.png" alt="Logo">
-                <span>智慧旅游</span>
-            </div>
             <div class="nav-links">
-                <a href="/frontend/views/index.html"><i class="fas fa-compass"></i> 智能推荐</a>
-                <a href="/frontend/views/place-search.html" class="active"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
-                <a href="/frontend/views/diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
-                <a href="/frontend/views/user-center.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+                <a href="../index.html">首页</a>
+                <a href="#" class="active">场所查询</a>
             </div>
         </nav>
         <main class="main-content">
-            <div class="search-section">
-                <el-input
-                    v-model="searchQuery"
-                    placeholder="搜索景点名称或关键词"
-                    class="search-input"
-                    @keyup.enter="searchPlaces"
-                >
-                    <template #append>
-                        <el-button @click="searchPlaces">
-                            <el-icon><Search /></el-icon>
-                        </el-button>
-                    </template>
-                </el-input>
-            </div>
-            <div class="filter-options">
-                <div class="filter-group">
-                    <span class="filter-label">类型：</span>
-                    <el-radio-group v-model="activeType" @change="filterByType">
-                        <el-radio-button 
-                            v-for="type in types" 
-                            :key="type" 
-                            :label="type"
-                        >
-                            {{ type }}
-                        </el-radio-button>
-                    </el-radio-group>
+            <div class="place-search-container">
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索场所..." v-model="searchQuery">
+                    <button class="search-btn" @click="fetchPlaces"><i class="fas fa-search"></i></button>
                 </div>
-                <div class="filter-group">
-                    <span class="filter-label">排序：</span>
-                    <el-radio-group v-model="sortMethod">
-                        <el-radio-button label="rating">评分</el-radio-button>
-                        <el-radio-button label="popularity">热度</el-radio-button>
-                    </el-radio-group>
-                </div>
-            </div>
-            <el-skeleton :rows="3" animated v-if="loading" />
-            <el-alert
-                v-if="error"
-                :title="error"
-                type="error"
-                show-icon
-                :closable="false"
-            />
-            <div class="places-list" v-if="!loading && !error">
-                <el-card 
-                    v-for="place in filteredPlaces" 
-                    :key="place.name"
-                    class="place-card"
-                    @click="viewPlaceDetails(place)"
-                >
-                    <div class="place-image">
-                        <el-image 
-                            :src="place.image" 
-                            fit="cover"
-                            :preview-src-list="[place.image]"
-                        >
-                            <template #error>
-                                <div class="image-placeholder">
-                                    <el-icon><Picture /></el-icon>
-                                </div>
-                            </template>
-                        </el-image>
+                <div class="filter-options">
+                    <div class="filter-group">
+                        <span>类型：</span>
+                        <button class="filter-btn" :class="{active: activeType === ''}" @click="filterByType('')">全部</button>
+                        <button class="filter-btn" v-for="type in types" :key="type" :class="{active: activeType === type}" @click="filterByType(type)">{{ type }}</button>
                     </div>
-                    <div class="place-info">
-                        <h3 class="place-name">{{ place.name }}</h3>
-                        <p class="place-type">{{ place.type }}</p>
-                        <div class="place-rating">
-                            <el-rate
-                                v-model="place.rating"
-                                disabled
-                                show-score
-                                text-color="#ff9900"
-                            />
-                        </div>
-                        <div class="place-keywords">
-                            <el-tag 
-                                v-for="keyword in place.keywords" 
-                                :key="keyword"
-                                size="small"
-                                class="keyword-tag"
-                            >
-                                {{ keyword }}
-                            </el-tag>
+                    <div class="filter-group">
+                        <span>排序：</span>
+                        <button class="filter-btn" :class="{active: sortBy === 'rating'}" @click="sortPlaces('rating')">评分</button>
+                        <button class="filter-btn" :class="{active: sortBy === 'popularity'}" @click="sortPlaces('popularity')">人气</button>
+                    </div>
+                </div>
+                <div class="places-list">
+                    <div class="place-card" v-for="place in filteredPlaces" :key="place.name">
+                        <img :src="place.image || '../assets/default.jpg'" :alt="place.name">
+                        <div class="place-info">
+                            <h3>{{ place.name }}</h3>
+                            <p class="rating">评分: {{ place.rating }}</p>
+                            <p class="type">类型: {{ place.type }}</p>
+                            <p class="address">地址: {{ place.address }}</p>
+                            <p class="popularity">人气: {{ place.popularity }}</p>
+                            <p class="keywords">关键词: {{ place.keywords }}</p>
                         </div>
                     </div>
-                </el-card>
+                </div>
             </div>
-            <el-empty 
-                v-if="!loading && !error && filteredPlaces.length === 0"
-                description="暂无符合条件的景点"
-            />
         </main>
-        <footer class="footer">
-            <div class="footer-content">
-                <p>&copy; 2024 智慧旅游管理系统</p>
-            </div>
-        </footer>
     </div>
     <script src="https://unpkg.com/vue@3"></script>
     <script src="https://unpkg.com/element-plus"></script>
-    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
     <script src="../src/place-search.js"></script>
 </body>
 </html> 

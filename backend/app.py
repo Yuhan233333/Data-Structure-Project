@@ -3,8 +3,8 @@ from flask_cors import CORS
 from auth import auth
 import webbrowser
 import os
-from place_api import place_bp
 import pandas as pd
+from place_api import place_bp
 
 app = Flask(__name__, template_folder='../frontend/views')
 # 启用CORS，允许前端访问
@@ -29,7 +29,7 @@ def open_browser():
     # 获取前端登录页面的绝对路径
     frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
     login_path = os.path.join(frontend_dir, 'views', 'login.html')
-    webbrowser.open('file://' + login_path)
+    webbrowser.open('http://localhost:5000/frontend/views/login.html')
 
 if __name__ == '__main__':
     # 仅在主进程中打开浏览器

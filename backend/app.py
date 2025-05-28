@@ -1,15 +1,28 @@
-from flask import Flask
+from flask import Flask, render_template, send_from_directory
 from flask_cors import CORS
 from auth import auth
 import webbrowser
 import os
+from place_api import place_bp
+import pandas as pd
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../frontend/views')
 # 启用CORS，允许前端访问
 CORS(app)
 
-# 注册认证蓝图
 app.register_blueprint(auth)
+app.register_blueprint(place_bp)
+
+@app.route('/place-search')
+def place_search():
+    csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'place_data.csv')
+    df = pd.read_csv(csv_path, encoding='utf-8')
+    places = df.to_dict(orient='records')
+    return render_template('place-search-ssr.html', places=places)
+
+@app.route('/frontend/<path:filename>')
+def frontend_static(filename):
+    return send_from_directory('../frontend', filename)
 
 def open_browser():
     """打开浏览器访问登录页面"""

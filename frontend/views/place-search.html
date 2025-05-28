@@ -4,118 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>场所查询 - 智慧旅游管理系统</title>
-    <link rel="stylesheet" href="../styles/main.css">
-    <link rel="stylesheet" href="../styles/place-search.css">
     <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="../styles/place-search.css">
+    <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
-    <!-- Leaflet地图 -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossorigin=""/>
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
 </head>
 <body>
     <div id="app">
-        <!-- 导航栏 -->
         <nav class="nav-bar">
             <div class="logo">
                 <img src="../assets/logo.png" alt="Logo">
                 <span>智慧旅游</span>
             </div>
             <div class="nav-links">
-                <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
-                <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
-                <a href="#" class="active"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
-                <a href="diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
-                <a href="social.html"><i class="fas fa-users"></i> 社交圈</a>
-                <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+                <a href="/frontend/views/index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="/frontend/views/place-search.html" class="active"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="/frontend/views/diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="/frontend/views/user-center.html"><i class="fas fa-user-circle"></i> 个人中心</a>
             </div>
         </nav>
-
-        <!-- 主要内容区域 -->
         <main class="main-content">
-            <div class="place-search-container">
-                <!-- 搜索栏 -->
-                <div class="search-bar">
-                    <input type="text" placeholder="搜索景点、餐厅、酒店..." v-model="searchQuery">
-                    <button class="search-btn"><i class="fas fa-search"></i></button>
+            <div class="search-section">
+                <el-input
+                    v-model="searchQuery"
+                    placeholder="搜索景点名称或关键词"
+                    class="search-input"
+                    @keyup.enter="searchPlaces"
+                >
+                    <template #append>
+                        <el-button @click="searchPlaces">
+                            <el-icon><Search /></el-icon>
+                        </el-button>
+                    </template>
+                </el-input>
+            </div>
+            <div class="filter-options">
+                <div class="filter-group">
+                    <span class="filter-label">类型：</span>
+                    <el-radio-group v-model="activeType" @change="filterByType">
+                        <el-radio-button 
+                            v-for="type in types" 
+                            :key="type" 
+                            :label="type"
+                        >
+                            {{ type }}
+                        </el-radio-button>
+                    </el-radio-group>
                 </div>
-
-                <!-- 筛选选项 -->
-                <div class="filter-options">
-                    <div class="filter-group">
-                        <span>类型：</span>
-                        <button :class="['filter-btn', activeType === '全部' ? 'active' : '']" @click="filterByType('全部')">全部</button>
-                        <button :class="['filter-btn', activeType === '景点' ? 'active' : '']" @click="filterByType('景点')">景点</button>
-                        <button :class="['filter-btn', activeType === '餐厅' ? 'active' : '']" @click="filterByType('餐厅')">餐厅</button>
-                        <button :class="['filter-btn', activeType === '酒店' ? 'active' : '']" @click="filterByType('酒店')">酒店</button>
-                    </div>
-                    <div class="filter-group">
-                        <span>排序：</span>
-                        <button :class="['filter-btn', sortBy === 'rating' ? 'active' : '']" @click="sortPlaces('rating')">评分</button>
-                        <button :class="['filter-btn', sortBy === 'distance' ? 'active' : '']" @click="sortPlaces('distance')">距离</button>
-                        <button :class="['filter-btn', sortBy === 'popularity' ? 'active' : '']" @click="sortPlaces('popularity')">人气</button>
-                    </div>
-                </div>
-
-                <!-- 3D地图和列表分屏显示 -->
-                <div class="split-view">
-                    <!-- 3D地图区域 -->
-                    <div class="map-view">
-                        <div class="map-container">
-                            <div class="map-controls">
-                                <button class="control-btn"><i class="fas fa-plus"></i></button>
-                                <button class="control-btn"><i class="fas fa-minus"></i></button>
-                                <button class="control-btn"><i class="fas fa-compass"></i></button>
-                            </div>
-                            <!-- 这里将集成实际的3D地图 -->
-                            <div class="map-placeholder">3D地图加载中...</div>
-                        </div>
-                    </div>
-
-                    <!-- 场所列表区域 -->
-                    <div class="places-list">
-                        <div class="place-card" v-for="place in filteredPlaces" :key="place.id">
-                            <img :src="place.image" :alt="place.name">
-                            <div class="place-info">
-                                <h3>{{ place.name }}</h3>
-                                <p class="rating">
-                                    <span class="stars">⭐⭐⭐⭐⭐</span>
-                                    <span>{{ place.rating }}</span>
-                                </p>
-                                <p class="type">{{ place.type }}</p>
-                                <p class="address">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    {{ place.address }}
-                                </p>
-                                <p class="distance">
-                                    <i class="fas fa-walking"></i>
-                                    {{ place.distance }}
-                                </p>
-                                <button class="btn-primary" @click="viewPlaceDetails(place.id)">查看详情</button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="filter-group">
+                    <span class="filter-label">排序：</span>
+                    <el-radio-group v-model="sortMethod">
+                        <el-radio-button label="rating">评分</el-radio-button>
+                        <el-radio-button label="popularity">热度</el-radio-button>
+                    </el-radio-group>
                 </div>
             </div>
+            <el-skeleton :rows="3" animated v-if="loading" />
+            <el-alert
+                v-if="error"
+                :title="error"
+                type="error"
+                show-icon
+                :closable="false"
+            />
+            <div class="places-list" v-if="!loading && !error">
+                <el-card 
+                    v-for="place in filteredPlaces" 
+                    :key="place.name"
+                    class="place-card"
+                    @click="viewPlaceDetails(place)"
+                >
+                    <div class="place-image">
+                        <el-image 
+                            :src="place.image" 
+                            fit="cover"
+                            :preview-src-list="[place.image]"
+                        >
+                            <template #error>
+                                <div class="image-placeholder">
+                                    <el-icon><Picture /></el-icon>
+                                </div>
+                            </template>
+                        </el-image>
+                    </div>
+                    <div class="place-info">
+                        <h3 class="place-name">{{ place.name }}</h3>
+                        <p class="place-type">{{ place.type }}</p>
+                        <div class="place-rating">
+                            <el-rate
+                                v-model="place.rating"
+                                disabled
+                                show-score
+                                text-color="#ff9900"
+                            />
+                        </div>
+                        <div class="place-keywords">
+                            <el-tag 
+                                v-for="keyword in place.keywords" 
+                                :key="keyword"
+                                size="small"
+                                class="keyword-tag"
+                            >
+                                {{ keyword }}
+                            </el-tag>
+                        </div>
+                    </div>
+                </el-card>
+            </div>
+            <el-empty 
+                v-if="!loading && !error && filteredPlaces.length === 0"
+                description="暂无符合条件的景点"
+            />
         </main>
-
-        <!-- 底部导航栏 -->
         <footer class="footer">
             <div class="footer-content">
                 <p>&copy; 2024 智慧旅游管理系统</p>
             </div>
         </footer>
     </div>
-
-    <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3"></script>
-    <!-- Element Plus -->
     <script src="https://unpkg.com/element-plus"></script>
-    <!-- 场所查询页面脚本 -->
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
     <script src="../src/place-search.js"></script>
 </body>
 </html> 

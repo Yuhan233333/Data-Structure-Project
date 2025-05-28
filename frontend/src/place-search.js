@@ -1,129 +1,136 @@
-// 创建 Vue 应用
+// 创建Vue应用
 const app = Vue.createApp({
     data() {
         return {
-            map: null,
+            // 搜索相关
             searchQuery: '',
-            activeType: 'all',
-            sortBy: 'rating',
-            places: [
-                {
-                    id: 1,
-                    name: '故宫博物院',
-                    type: 'cultural',
-                    image: '../assets/images/forbidden-city.jpg',
-                    rating: 4.9,
-                    address: '北京市东城区景山前街4号',
-                    distance: 0,
-                    popularity: 98,
-                    location: [39.9169, 116.3907]
-                },
-                {
-                    id: 2,
-                    name: '南锣鼓巷',
-                    type: 'entertainment',
-                    image: '../assets/images/nanluoguxiang.jpg',
-                    rating: 4.7,
-                    address: '北京市东城区南锣鼓巷',
-                    distance: 2.5,
-                    popularity: 92,
-                    location: [39.9367, 116.4033]
-                },
-                {
-                    id: 3,
-                    name: '北海公园',
-                    type: 'nature',
-                    image: '../assets/images/beihai-park.jpg',
-                    rating: 4.6,
-                    address: '北京市西城区文津街1号',
-                    distance: 1.8,
-                    popularity: 85,
-                    location: [39.9263, 116.3906]
-                }
-            ]
+            activeType: '全部',
+            sortMethod: 'rating',
+            
+            // 数据相关
+            places: [],
+            types: [],
+            loading: false,
+            error: null
         }
     },
+    
     computed: {
+        // 过滤和排序后的场所列表
         filteredPlaces() {
-            let result = [...this.places];
+            let result = [...this.places]
             
-            // 按类型筛选
-            if (this.activeType !== 'all') {
-                result = result.filter(place => place.type === this.activeType);
+            // 按类型过滤
+            if (this.activeType !== '全部') {
+                result = result.filter(place => place.type === this.activeType)
             }
             
-            // 按搜索词筛选
-            if (this.searchQuery) {
-                const query = this.searchQuery.toLowerCase();
-                result = result.filter(place => 
-                    place.name.toLowerCase().includes(query) ||
-                    place.address.toLowerCase().includes(query)
-                );
-            }
+            // 按评分或热度排序
+            result.sort((a, b) => {
+                if (this.sortMethod === 'rating') {
+                    return b.rating - a.rating
+                } else {
+                    return b.popularity - a.popularity
+                }
+            })
             
-            // 排序
-            switch(this.sortBy) {
-                case 'rating':
-                    result.sort((a, b) => b.rating - a.rating);
-                    break;
-                case 'distance':
-                    result.sort((a, b) => a.distance - b.distance);
-                    break;
-                case 'popularity':
-                    result.sort((a, b) => b.popularity - a.popularity);
-                    break;
-            }
-            
-            return result;
+            return result
         }
     },
+    
     methods: {
-        filterByType(type) {
-            this.activeType = type;
-        },
-        sortPlaces(criterion) {
-            this.sortBy = criterion;
-        },
-        viewPlaceDetails(placeId) {
-            const place = this.places.find(p => p.id === placeId);
-            if (place) {
-                ElementPlus.ElMessage({
-                    message: `正在查看${place.name}的详细信息`,
-                    type: 'info'
-                });
+        // 加载场所数据
+        async loadPlaces() {
+            this.loading = true
+            this.error = null
+            
+            try {
+                // 获取场所类型列表
+                const typesResponse = await fetch('/api/places/types')
+                const typesData = await typesResponse.json()
+                if (typesData.code === 200) {
+                    this.types = ['全部', ...typesData.data]
+                }
+                
+                // 获取场所列表
+                const response = await fetch('/api/places')
+                const data = await response.json()
+                if (data.code === 200) {
+                    this.places = data.data
+                } else {
+                    throw new Error(data.message)
+                }
+            } catch (err) {
+                this.error = err.message
+                console.error('加载场所数据失败:', err)
+            } finally {
+                this.loading = false
             }
         },
-        initMap() {
-            // 初始化地图，设置中心点为北京市中心
-            this.map = L.map('map').setView([39.9042, 116.4074], 12);
+        
+        // 搜索场所
+        async searchPlaces() {
+            this.loading = true
+            this.error = null
             
-            // 添加OpenStreetMap图层
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(this.map);
+            try {
+                const response = await fetch(`/api/places?query=${encodeURIComponent(this.searchQuery)}`)
+                const data = await response.json()
+                if (data.code === 200) {
+                    this.places = data.data
+                } else {
+                    throw new Error(data.message)
+                }
+            } catch (err) {
+                this.error = err.message
+                console.error('搜索场所失败:', err)
+            } finally {
+                this.loading = false
+            }
+        },
+        
+        // 按类型过滤
+        async filterByType(type) {
+            this.activeType = type
+            this.loading = true
+            this.error = null
             
-            // 为每个地点添加标记
-            this.places.forEach(place => {
-                L.marker(place.location)
-                    .bindPopup(`
-                        <h3>${place.name}</h3>
-                        <p>${place.address}</p>
-                        <p>评分: ${place.rating}</p>
-                        <button onclick="viewPlaceDetails(${place.id})" class="popup-btn">查看详情</button>
-                    `)
-                    .addTo(this.map);
-            });
+            try {
+                if (type === '全部') {
+                    await this.loadPlaces()
+                    return
+                }
+                const response = await fetch(`/api/places?type=${encodeURIComponent(type)}`)
+                const data = await response.json()
+                if (data.code === 200) {
+                    this.places = data.data
+                } else {
+                    throw new Error(data.message)
+                }
+            } catch (err) {
+                this.error = err.message
+                console.error('按类型过滤失败:', err)
+            } finally {
+                this.loading = false
+            }
+        },
+        
+        // 查看场所详情
+        viewPlaceDetails(place) {
+            // 可扩展：弹窗或跳转详情页
+            console.log('查看场所详情:', place)
         }
     },
+    
+    // 组件挂载时加载数据
     mounted() {
-        this.initMap();
+        this.loadPlaces()
     }
-});
+})
 
-app.use(ElementPlus);
-app.mount('#app');
+// 使用Element Plus组件
+app.use(ElementPlus)
+app.use(ElementPlusIconsVue)
 
-// 全局函数，用于从地图弹窗中调用
-window.viewPlaceDetails = function(placeId) {
-    app._instance.proxy.viewPlaceDetails(placeId);
-}; 
+// 挂载应用
+app.mount('#app') 

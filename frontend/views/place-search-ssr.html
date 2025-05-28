@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>场所查询 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="/frontend/styles/main.css">
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="logo">
+            <img src="/frontend/assets/logo.png" alt="Logo">
+            <span>智慧旅游</span>
+        </div>
+        <div class="nav-links">
+            <a href="/frontend/views/index.html">首页</a>
+            <a href="/place-search" class="active">场所查询</a>
+        </div>
+    </nav>
+    <main class="main-content">
+        <h1>场所查询</h1>
+        <table border="1" cellpadding="8">
+            <tr>
+                <th>名称</th>
+                <th>类型</th>
+                <th>评分</th>
+                <th>热度</th>
+                <th>关键词</th>
+                <th>图片</th>
+            </tr>
+            {% for place in places %}
+            <tr>
+                <td>{{ place['name'] }}</td>
+                <td>{{ place['type'] }}</td>
+                <td>{{ place['rating'] }}</td>
+                <td>{{ place['popularity'] }}</td>
+                <td>{{ place['keywords'] }}</td>
+                <td>
+                    {% if place['image'] %}
+                        <img src="/{{ place['image'] }}" alt="图片" width="80">
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+</body>
+</html> 

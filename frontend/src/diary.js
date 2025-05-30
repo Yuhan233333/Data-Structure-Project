@@ -279,7 +279,7 @@ const app = createApp({
             uploadedImages.value = [];
         };
 
-        // 导出日记
+        // 导出日记到程序文件夹
         const exportDiaries = async () => {
             try {
                 const db = await openDatabase();
@@ -291,63 +291,72 @@ const app = createApp({
                     request.onsuccess = () => resolve(request.result);
                 });
 
-                const blob = new Blob([JSON.stringify(diaries, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `travel_diary_${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                // 调用后端导出接口
+                const response = await fetch('/api/export/diaries', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token'),
+                        'X-Username': localStorage.getItem('username')
+                    },
+                    body: JSON.stringify({ diaries })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    ElementPlus.ElMessage.success('日记已导出到程序文件夹');
+                } else {
+                    throw new Error(result.message);
+                }
             } catch (error) {
                 console.error('导出日记失败:', error);
-                ElementPlus.ElMessage.error('导出日记失败');
+                ElementPlus.ElMessage.error('导出失败，请稍后重试');
             }
         };
 
-        // 导入日记
-        const importDiaries = () => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = async (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    try {
-                        const text = await file.text();
-                        const diaries = JSON.parse(text);
-
-                        const db = await openDatabase();
-                        const transaction = db.transaction(['diaries'], 'readwrite');
-                        const store = transaction.objectStore('diaries');
-
-                        // 清空现有数据
-                        await new Promise((resolve, reject) => {
-                            const clearRequest = store.clear();
-                            clearRequest.onsuccess = resolve;
-                            clearRequest.onerror = reject;
-                        });
-
-                        // 导入新数据
-                        for (const diary of diaries) {
-                            await new Promise((resolve, reject) => {
-                                const request = store.add(diary);
-                                request.onsuccess = resolve;
-                                request.onerror = reject;
-                            });
-                        }
-
-                        ElementPlus.ElMessage.success('日记导入成功');
-                        loadDiaryList(); // 更新日记列表
-                        loadSavedDiary();
-                    } catch (error) {
-                        console.error('导入日记失败:', error);
-                        ElementPlus.ElMessage.error('导入日记失败');
+        // 从程序文件夹导入日记
+        const importDiaries = async () => {
+            try {
+                // 调用后端导入接口
+                const response = await fetch('/api/import/diaries', {
+                    headers: {
+                        'Authorization': localStorage.getItem('token'),
+                        'X-Username': localStorage.getItem('username')
                     }
+                });
+
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message);
                 }
-            };
-            input.click();
+
+                const db = await openDatabase();
+                const transaction = db.transaction(['diaries'], 'readwrite');
+                const store = transaction.objectStore('diaries');
+
+                // 清空现有数据
+                await new Promise((resolve, reject) => {
+                    const clearRequest = store.clear();
+                    clearRequest.onsuccess = resolve;
+                    clearRequest.onerror = reject;
+                });
+
+                // 导入新数据
+                for (const diary of result.diaries) {
+                    await new Promise((resolve, reject) => {
+                        const request = store.add(diary);
+                        request.onsuccess = resolve;
+                        request.onerror = reject;
+                    });
+                }
+
+                ElementPlus.ElMessage.success('日记导入成功');
+                loadDiaryList(); // 更新日记列表
+                loadSavedDiary();
+            } catch (error) {
+                console.error('导入日记失败:', error);
+                ElementPlus.ElMessage.error('导入失败，请稍后重试');
+            }
         };
 
         // 评分方法

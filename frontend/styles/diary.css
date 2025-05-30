@@ -704,4 +704,96 @@
     color: #909399;
     font-size: 0.9rem;
     margin: 0;
+}
+
+.diary-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.export-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s;
+}
+
+.export-btn:hover {
+    background-color: #45a049;
+}
+
+.export-btn i {
+    font-size: 14px;
+}
+
+/* 日记列表头部操作按钮 */
+.list-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.list-actions .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9em;
+}
+
+.list-actions .action-btn:hover {
+    background: var(--hover-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.list-actions .action-btn i {
+    font-size: 1em;
+}
+
+.list-actions .close-btn {
+    margin-left: 10px;
+}
+
+.diary-bottom-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0 10px 0;
+}
+
+.diary-bottom-actions .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s;
+}
+
+.diary-bottom-actions .action-btn:hover {
+    background: var(--hover-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.diary-bottom-actions .action-btn i {
+    font-size: 1.1em;
 } 

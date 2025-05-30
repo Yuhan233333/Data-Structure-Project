@@ -64,4 +64,37 @@
         width: 100%;
         max-width: 400px;
     }
+}
+
+.diary-bottom-actions {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin: 48px 0 24px 0;
+}
+
+.diary-bottom-actions .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 12px;
+    background: #fff;
+    color: #409EFF;
+    font-size: 1.2em;
+    font-weight: 500;
+    box-shadow: 0 2px 12px rgba(64,158,255,0.08);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.diary-bottom-actions .action-btn:hover {
+    background: #ecf5ff;
+    color: #1976d2;
+    box-shadow: 0 4px 20px rgba(64,158,255,0.15);
+}
+
+.diary-bottom-actions .action-btn i {
+    font-size: 1.3em;
 } 

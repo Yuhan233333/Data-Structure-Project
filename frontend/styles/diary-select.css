@@ -1,0 +1,120 @@
+/* 日记选择页面样式 */
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #45a049;
+    --text-color: #333;
+    --border-color: #ddd;
+    --hover-color: #f5f5f5;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 主要内容区域 */
+.main-content {
+    padding: 20px;
+    margin-top: 60px;
+    min-height: calc(100vh - 120px);
+    background-color: #f9f9f9;
+}
+
+/* 选择容器 */
+.select-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.select-container h1 {
+    color: var(--text-color);
+    margin-bottom: 40px;
+    font-size: 2.5em;
+}
+
+/* 选项网格 */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* 选项卡片 */
+.option-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px var(--shadow-color);
+}
+
+/* 图标包装器 */
+.icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.icon-wrapper i {
+    font-size: 2.5em;
+    color: white;
+}
+
+/* 卡片标题 */
+.option-card h2 {
+    color: var(--text-color);
+    margin: 0 0 10px 0;
+    font-size: 1.5em;
+}
+
+/* 卡片描述 */
+.option-card p {
+    color: #666;
+    margin: 0;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .select-container {
+        padding: 20px;
+    }
+
+    .select-container h1 {
+        font-size: 2em;
+        margin-bottom: 30px;
+    }
+
+    .options-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .option-card {
+        padding: 20px;
+    }
+
+    .icon-wrapper {
+        width: 60px;
+        height: 60px;
+    }
+
+    .icon-wrapper i {
+        font-size: 2em;
+    }
+} 

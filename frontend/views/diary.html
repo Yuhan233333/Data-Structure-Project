@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日记助手 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/diary.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <!-- Quill富文本编辑器 -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="../assets/logo.jpg" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="#" class="active"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <div class="diary-container">
+                <!-- 日记编辑区 -->
+                <div class="diary-editor">
+                    <div class="editor-header">
+                        <input type="text" v-model="diaryTitle" placeholder="输入日记标题..." class="title-input">
+                        <div class="editor-tools">
+                            <button class="tool-btn" @click="newDiary">
+                                <i class="fas fa-plus"></i>
+                                新建日记
+                            </button>
+                            <button class="tool-btn" @click="showDiaryList = !showDiaryList">
+                                <i class="fas fa-list"></i>
+                                历史日记
+                            </button>
+                            <button class="tool-btn" @click="uploadImages">
+                                <i class="fas fa-image"></i>
+                                添加图片
+                            </button>
+                            <button class="tool-btn" @click="saveDiary">
+                                <i class="fas fa-save"></i>
+                                保存
+                            </button>
+                        </div>
+                    </div>
+                    <div id="editor">
+                        <!-- Quill编辑器将在这里初始化 -->
+                    </div>
+                </div>
+
+                <!-- 历史日记列表 -->
+                <div class="diary-list" v-if="showDiaryList">
+                    <div class="list-header">
+                        <h3>历史日记</h3>
+                        <div class="list-actions">
+                            <button class="action-btn" @click="exportDiaries">
+                                <i class="fas fa-file-export"></i>
+                                导出日记
+                            </button>
+                            <button class="action-btn" @click="importDiaries">
+                                <i class="fas fa-file-import"></i>
+                                导入日记
+                            </button>
+                            <button class="close-btn" @click="showDiaryList = false">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-content">
+                        <div v-for="diary in diaryList" 
+                             :key="diary.id" 
+                             class="diary-item"
+                             :class="{ active: diary.id === currentDiaryId }">
+                            <div class="diary-item-content" @click="loadDiary(diary.id)">
+                                <h4>{{ diary.title }}</h4>
+                                <p class="diary-date">{{ new Date(diary.createdAt).toLocaleString() }}</p>
+                                <!-- 添加评分显示 -->
+                                <div class="diary-rating" v-if="diary.averageRating">
+                                    <span class="rating-label">评分：</span>
+                                    <div class="stars">
+                                        <i v-for="n in 10" 
+                                           :key="n" 
+                                           class="fas fa-star"
+                                           :style="{ color: n <= diary.averageRating ? '#ffd700' : '#ddd' }">
+                                        </i>
+                                    </div>
+                                    <span class="rating-value">{{ diary.averageRating }}</span>
+                                </div>
+                        </div>
+                            <div class="diary-item-actions">
+                                <button class="delete-btn" @click="deleteDiary(diary.id)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 评分区域 -->
+                <div class="rating-section" v-if="currentDiaryId && currentUser">
+                    <h3>评分</h3>
+                    <div class="rating-stars">
+                        <i v-for="n in 10" 
+                           :key="n" 
+                           class="fas fa-star" 
+                           :class="{ 'active': n <= userRating }"
+                           @click="rateDiary(n)"
+                           @mouseover="hoverRating = n"
+                           @mouseleave="hoverRating = 0"
+                           :style="{ color: n <= (hoverRating || userRating) ? '#ffd700' : '#ddd' }">
+                        </i>
+                    </div>
+                    <span class="rating-value">{{ userRating || 0 }}/10</span>
+                </div>
+            </div>
+
+            <!-- 图片上传预览 -->
+            <div class="image-preview" v-if="showImagePreview">
+                <div class="preview-header">
+                    <h3>图片预览</h3>
+                    <button class="close-btn" @click="closeImagePreview">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="preview-content">
+                    <div class="image-grid">
+                        <div v-for="(image, index) in uploadedImages" 
+                             :key="index" 
+                             class="image-item">
+                            <img :src="image.url" :alt="image.name">
+                            <div class="image-actions">
+                                <button class="action-btn" @click="insertImage(image)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="action-btn delete" @click="removeImage(index)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航栏 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 智慧旅游管理系统</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- Quill -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <!-- 日记助手页面脚本 -->
+    <script src="../src/diary.js"></script>
+</body>
+</html> 

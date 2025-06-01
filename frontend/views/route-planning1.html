@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智慧旅游管理系统 - 路线规划</title>
+
+  <!-- 自定义样式 -->
+  <link rel="stylesheet" href="../styles/route-planning1.css" />
+  <link rel="stylesheet" href="./styles/main.css" />
+  <!-- 图标库 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 顶部导航栏 -->
+    <nav class="nav-bar">
+      <div class="logo">
+        <img src="./assets/logo.png" alt="Logo" />
+        <span>智慧旅游</span>
+      </div>
+      <div class="nav-links">
+        <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+        <a href="route-planning.html" class="active"><i class="fas fa-route"></i> 路线规划</a>
+        <a href="place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+        <a href="diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+      </div>
+    </nav>
+
+    <!-- 主内容区域：为了不被导航栏遮挡，margin-top 采用 CSS 里 .main-content 定义 -->
+   <div style="height: 60px;"></div>
+<!-- 1. 起点 -->
+<div class="form-row" style="margin-top: 20px;">
+  <div class="input-group">
+    <label for="startInput">起点</label>
+    <input
+      id="startInput"
+      placeholder="请输入起点"
+      oninput="searchSuggestions(this.value,'start')"
+    />
+    <div id="startSuggestions" class="suggestions-box"></div>
+  </div>
+</div>
+
+<!-- 2. 途经景点（可多个，用逗号分隔）-->
+<div class="form-row">
+  <div class="input-group">
+    <label for="waypointsInput">途经景点 (逗号分隔)</label>
+    <input
+      id="waypointsInput"
+      placeholder="多个景点用逗号分隔，如：养心殿,御花园"
+      oninput="searchSuggestions(this.value,'waypoints')"
+    />
+    <div id="waypointsSuggestions" class="suggestions-box"></div>
+  </div>
+</div>
+
+<!-- 3. 终点（补回这一块） -->
+<div class="form-row">
+  <div class="input-group">
+    <input
+      id="endInput"
+      placeholder="请输入终点"
+      oninput="searchSuggestions(this.value,'end')"
+    />
+    <div id="endSuggestions" class="suggestions-box"></div>
+  </div>
+</div>
+
+<!-- 4. 查看导航 按钮 -->
+<div class="form-row">
+  <button class="search-btn" onclick="viewNavigation()">查看导航</button>
+</div>
+
+      <!-- 5. 当前所在位置 -->
+<div class="form-row">
+  <div class="input-group">
+    <label for="posInput">当前位置 (手动输入或选列表)</label>
+    <input
+      id="posInput"
+      placeholder="输入当前位置，如：糖房咖啡(什刹海店)"
+      oninput="setCurrentPos(this.value)"
+    />
+    <div id="posSuggestions" class="suggestions-box"></div>
+  </div>
+</div>
+
+<!-- 6. 类别（可选）-->
+<div class="form-row">
+  <div class="input-group">
+    <label for="typeInput">类别 (可选)</label>
+    <input
+      id="typeInput"
+      placeholder="输入类别：饭店/宾馆/景点/饮品店/咖啡店/照相馆/地铁站/公交站/小学/酒吧/商店/邮局"
+      oninput="triggerNearbyOnType()"
+    />
+  </div>
+</div>
+
+<!-- 7. 附近地点结果展示（此处仅留结果容器）-->
+<div class="form-row">
+  <div class="input-group">
+    <!-- 下面这个用来输出附近查询结果 -->
+    <div id="nearbyResults" class="results-container"></div>
+  </div>
+</div>
+    <!-- 底部 -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 智慧旅游管理系统</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 原生 JavaScript -->
+  <!-- 如果你有额外的 route-planning1.js 脚本（例如自动补全逻辑），可以继续引用 -->
+  <script src="../src/route-planning1.js"></script>
+
+<script>window.addEventListener("load", loadPlaces);</script>
+
+</body>
+</html>

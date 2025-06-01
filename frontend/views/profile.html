@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/profile.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="../assets/logo.jpg" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="#" class="active"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <div class="profile-container">
+                <!-- 左侧导航 -->
+                <div class="profile-sidebar">
+                    <div class="user-info">
+                        <div class="avatar">
+                            <img src="../assets/default-avatar.png" alt="用户头像">
+                        </div>
+                        <h3>{{ username }}</h3>
+                        <p class="user-role">{{ userRole === 'admin' ? '管理员' : '普通用户' }}</p>
+                    </div>
+                    <nav class="profile-nav">
+                        <button :class="['nav-item', activeTab === 'security' ? 'active' : '']" 
+                                @click="activeTab = 'security'">
+                            <i class="fas fa-shield-alt"></i> 修改密码
+                        </button>
+                        <button :class="['nav-item', activeTab === 'statistics' ? 'active' : '']" 
+                                @click="activeTab = 'statistics'">
+                            <i class="fas fa-chart-bar"></i> 日记统计
+                        </button>
+                        <button class="nav-item logout-btn" @click="logout">
+                            <i class="fas fa-sign-out-alt"></i> 退出登录
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- 右侧内容区 -->
+                <div class="profile-content">
+                    <!-- 修改密码 -->
+                    <div v-if="activeTab === 'security'" class="tab-content">
+                        <h2>修改密码</h2>
+                        <form @submit.prevent="changePassword" class="password-form">
+                            <div class="form-group">
+                                <label>当前密码</label>
+                                <input type="password" v-model="passwordForm.oldPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label>新密码</label>
+                                <input type="password" v-model="passwordForm.newPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label>确认新密码</label>
+                                <input type="password" v-model="passwordForm.confirmPassword" required>
+                            </div>
+                            <button type="submit" class="submit-btn">确认修改</button>
+                        </form>
+                    </div>
+
+                    <!-- 日记统计 -->
+                    <div v-if="activeTab === 'statistics'" class="tab-content">
+                        <h2>日记统计</h2>
+                        <div class="statistics-grid">
+                            <div class="stat-card">
+                                <i class="fas fa-book"></i>
+                                <h3>日记总数</h3>
+                                <p class="stat-number">{{ statistics.diaryCount }}</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-star"></i>
+                                <h3>平均评分</h3>
+                                <p class="stat-number">{{ statistics.averageRating }}</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-calendar"></i>
+                                <h3>最近更新</h3>
+                                <p class="stat-text">{{ statistics.lastUpdate || '暂无' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航栏 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 智慧旅游管理系统</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 个人中心页面脚本 -->
+    <script src="../src/profile.js"></script>
+</body>
+</html> 

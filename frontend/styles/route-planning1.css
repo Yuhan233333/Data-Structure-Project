@@ -1,0 +1,532 @@
+/* =====================================================
+   主题变量
+===================================================== */
+:root {
+  /* 颜色 */
+  --color-primary: #409EFF;
+  --color-primary-hover: #66b1ff;
+  --color-bg: #f5f7fa;
+  --color-bg-panel: #fff;
+  --color-text: #333;
+  --color-text-muted: #606266;
+  --color-text-light: #909399;
+  --color-border: #dcdfe6;
+
+  /* 圆角 */
+  --radius: 8px;
+  --radius-sm: 4px;
+
+  /* 阴影 */
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-deep: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  /* 过渡 */
+  --transition-fast: all 0.3s;
+
+  /* 布局 */
+  --nav-height: 60px;
+  --footer-height: 48px;
+}
+
+/* =====================================================
+   全局重置
+===================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  padding-bottom: var(--footer-height); /* 保留页脚高度 */
+  position: relative;
+}
+
+/* =====================================================
+   顶部导航栏
+===================================================== */
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  background-color: var(--color-bg-panel);
+  box-shadow: var(--shadow-light);
+  z-index: 1000;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.logo img {
+  height: 40px;
+}
+.logo span {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+.nav-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--color-primary);
+}
+
+/* =====================================================
+   主内容区域 & 卡片布局
+===================================================== */
+.main-content {
+  margin-top: calc(var(--nav-height) + 20px);
+  padding: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: calc(100vh - var(--nav-height) - var(--footer-height) - 40px);
+}
+
+.card,
+.recommendation-panel,
+.navigation-panel {
+  background-color: var(--color-bg-panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-deep);
+  transition: var(--transition-fast);
+}
+.card {
+  overflow: hidden;
+}
+.card:hover {
+  transform: translateY(-5px);
+}
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.card-content {
+  padding: 1rem;
+}
+.card-content h3 {
+  margin-bottom: 0.5rem;
+  color: #303133;
+}
+
+/* =====================================================
+   标签页
+===================================================== */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.tabs {
+  display: flex;
+  gap: 1rem;
+}
+.tab {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-fast);
+}
+.tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* =====================================================
+   按钮
+===================================================== */
+.btn-primary,
+.search-btn {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  height: 48px;
+  margin: 12px auto;
+  line-height: 48px;
+  font-size: 16px;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn-primary:hover,
+.search-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* =====================================================
+   地图容器
+===================================================== */
+.map-container {
+  height: 400px;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =====================================================
+   路线规划输入区
+===================================================== */
+/* 统一让所有输入框横向居中、最大宽度 800px */
+.input-group,
+.search-bar {
+  width: 100%;
+  max-width: 800px;
+  margin: 12px auto;
+  position: relative; /* 便于 suggestions 绝对定位 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 文本框样式 */
+.input-group input,
+.search-bar input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2; /* 确保在建议框之上 */
+}
+.input-group input:focus,
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* “查看导航”按钮 */ 
+/* 已在上方 .search-btn 规则中定义 */
+
+/* 下拉建议框 */
+.suggestions-box {
+  position: absolute;
+  top: calc(100% + 2px); /* 在输入框下方，留出 2px 边框距离 */
+  left: 0;
+  width: 100%;
+  max-width: 800px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-top: none;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.suggestion-item {
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.suggestion-item:hover {
+  background: #f0f4ff;
+}
+
+/* 搜索按钮（如“查看导航”） */ 
+.search-btn {
+  margin-top: 0; /* 由上面统一规则覆盖 */
+}
+
+/* =====================================================
+   固定底栏
+===================================================== */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--footer-height);
+  line-height: var(--footer-height);
+  text-align: center;
+  background: var(--color-bg-panel);
+  border-top: 1px solid #e2e5ec;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+}
+.footer p {
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+}
+
+/* =====================================================
+   兼容旧版 “搜索附近” 结构
+===================================================== */
+.search-bar {
+  gap: 1rem;
+}
+.search-bar .input-group {
+  /* 兼容嵌套 .input-group 结构 */
+}
+.search-bar input {
+  flex: 1;
+  /* 由上方 .input-group input 规则覆盖宽度 */
+}
+
+/* =====================================================
+   其他通用样式
+===================================================== */
+/* 清除 .nav-links a.active 默认样式，确保专属高亮执行 */
+.nav-links a.active {
+  color: var(--color-text-muted);
+}
+/* 特定页面高亮：让“路线规划”页签始终高亮 */
+.nav-links a[href="route-planning.html"] {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* END OF FILE */
+/* 1. 确保按钮本身是块级元素且宽度铺满父容器 */
+.route-btn {
+  display: block;           /* 让按钮变成块级元素 */
+  width: 100%;              /* 占据父容器的全部宽度 */
+  max-width: 800px;         /* 如果你希望限制最大宽度，可根据需要调整 */
+  margin: 12px auto;        /* 垂直间距 + 水平居中 */
+  padding: 0;               /* 去掉默认的内边距（之后再精确设置） */
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-align: center;       /* ⇨ 关键：让文字水平居中 */
+  line-height: 48px;        /* 如果按钮高度固定 48px，可以让文字垂直居中 */
+  font-size: 16px;
+}
+
+/* 2. 如果需要在按钮内部加一些左右 padding，可以这样写 */
+.route-btn {
+  padding: 0 16px;          /* 左右各 16px，根据实际需求调整 */
+  /* 上面已经写了 line-height:48px;，这里保持按钮高度 48px */
+}
+
+/* 3. 加上 Hover 效果 */
+.route-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* 4. 如果你是用其他类名（例如 .search-btn 或 .btn-primary），请用同样的思路： */
+.search-btn,
+.btn-primary {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  margin: 12px auto;
+  padding: 0 16px;
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+  font-size: 16px;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.search-btn:hover,
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+.route-choice-panel h2 {
+  text-align: center;
+}
+/* main.css 或 route-planning1.css 中的关键样式示例 */
+
+:root {
+  --color-primary: #409EFF;
+  --color-bg: #f5f7fa;
+  --color-bg-panel: #fff;
+  --color-text: #333;
+  --radius: 8px;
+  --transition-fast: all 0.3s;
+  --nav-height: 60px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  padding-bottom: var(--nav-height); /* 避免 footer 遮挡内容 */
+}
+
+/* 顶部导航 */
+.nav-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-height);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  background: var(--color-bg-panel);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+/* 主内容：离开导航栏的高度 + 20px */
+.main-content {
+  margin-top: calc(var(--nav-height) + 20px);
+  padding-bottom: 20px; /* 给 footer 留空间 */
+}
+
+/* 每一行输入框的容器 */
+.form-row {
+  width: 100%;
+  max-width: 800px;    /* 你想要的最大宽度 */
+  margin: 12px auto;   /* 上下 12px，左右居中 */
+}
+
+/* 输入框组：用于放置 input + 建议框 */
+.input-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* 文本框、下拉提示共享的宽度/高度/圆角样式 */
+.input-group input {
+  width: 100%;
+  height: 48px;          /* 比原来高度再调高一点 */
+  padding: 0 14px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+.input-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* 建议下拉框放在 input 下方 */
+.suggestions-box {
+  position: absolute;
+  top: calc(100% + 2px); /* 2px = input 本身的 border-width，如果有变化请同步修改 */
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+.suggestion-item {
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.suggestion-item:hover {
+  background: #f0f4ff;
+}
+
+/* 按钮等宽 & 居中 */
+.search-btn {
+  width: 100%;
+  max-width: 800px;   /* 与 .form-row 保持一致 */
+  height: 48px;
+  line-height: 48px;
+  margin: 12px auto;
+  display: block;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.search-btn:hover {
+  background: #66b1ff;
+}
+
+/* “搜索附近”那一行如果你想单独调整，也可以用 .search-bar */
+.search-bar {
+  width: 100%;
+  max-width: 800px;
+  margin: 12px auto;
+}
+
+/* 底部固定 */
+.footer {
+  position: fixed;
+  bottom: 0; left: 0;
+  width: 100%;
+  height: var(--nav-height);  /* 48px 或 60px，根据需要改 */
+  line-height: var(--nav-height);
+  background: var(--color-bg-panel);
+  border-top: 1px solid #e2e5ec;
+  text-align: center;
+  z-index: 9999;
+}
+.footer p {
+  color: #909399;
+  font-size: 0.875rem;
+  margin: 0;
+}
+.footer-image {
+  width: 100%;        /* 顶部留一点空隙，可按需调整 */
+}
+
+.footer-image img {
+  display: block;
+  width: 49%;
+  height: auto;
+  margin: 0 auto;         /* ⬅️ 关键！左右 auto 就会水平居中 */
+  object-fit: cover;
+  border-radius: 8px;
+}
+.main-content { 
+  min-height: auto;   /* 或者直接删掉这一行 */
+}

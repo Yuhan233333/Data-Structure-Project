@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场所查询 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/place-search.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="../assets/logo.jpg" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="#" class="active"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="place-search-container">
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索场所..." v-model="searchQuery">
+                    <button class="search-btn" @click="fetchPlaces"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="filter-options">
+                    <div class="filter-group">
+                        <span>类型：</span>
+                        <button class="filter-btn" :class="{active: activeType === ''}" @click="filterByType('')">全部</button>
+                        <button class="filter-btn" v-for="type in types" :key="type" :class="{active: activeType === type}" @click="filterByType(type)">{{ type }}</button>
+                    </div>
+                    <div class="filter-group">
+                        <span>排序：</span>
+                        <button class="filter-btn" :class="{active: sortBy === 'rating'}" @click="sortPlaces('rating')">评分</button>
+                        <button class="filter-btn" :class="{active: sortBy === 'popularity'}" @click="sortPlaces('popularity')">人气</button>
+                    </div>
+                </div>
+                
+                <div class="places-list">
+                    <div class="place-card" v-for="place in paginatedPlaces" :key="place.name">
+                        <img :src="place.image || '../assets/default.jpg'" :alt="place.name" @error="handleImageError">
+                        <div class="place-info">
+                            <h3>{{ place.name }}</h3>
+                            <p class="rating">
+                                <span class="stars">
+                                    <i v-for="n in 5" :key="n" 
+                                       :class="[
+                                           'fas', 
+                                           n <= Math.floor(place.rating) ? 'fa-star' : 
+                                           (n - 0.5 <= place.rating ? 'fa-star-half-alt' : 'fa-star'),
+                                           n <= Math.floor(place.rating) || n - 0.5 <= place.rating ? 'filled' : ''
+                                       ]"
+                                    ></i>
+                                </span>
+                                <span class="rating-value">{{ place.rating }}</span>
+                            </p>
+                            <p class="type">
+                                <i class="fas fa-tag"></i> 类型: {{ place.type }}
+                            </p>
+                            <p class="popularity">
+                                <i class="fas fa-fire"></i> 人气: {{ parseFloat(place.popularity).toFixed(1) }}
+                            </p>
+                            <div class="keywords-container">
+                                <span class="keyword-tag" v-for="keyword in place.keywords" :key="keyword">{{ keyword }}</span>
+                            </div>
+                            <button class="btn-primary" @click="showDetail(place)">
+                                <i class="fas fa-info-circle"></i> 查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 详情弹窗 -->
+                <div class="detail-modal" v-if="showDetailModal" @click.self="closeDetail">
+                    <div class="detail-content">
+                        <div class="detail-close" @click="closeDetail">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        
+                        <div class="detail-header">
+                            <img :src="selectedPlace.image || '../assets/default.jpg'" :alt="selectedPlace.name" class="detail-image" @error="handleImageError">
+                            <div class="detail-info">
+                                <h2>{{ selectedPlace.name }}</h2>
+                                <div class="detail-rating">
+                                    <span class="stars">
+                                        <i v-for="n in 5" :key="n" 
+                                           :class="[
+                                               'fas', 
+                                               n <= Math.floor(selectedPlace.rating) ? 'fa-star' : 
+                                               (n - 0.5 <= selectedPlace.rating ? 'fa-star-half-alt' : 'fa-star'),
+                                               n <= Math.floor(selectedPlace.rating) || n - 0.5 <= selectedPlace.rating ? 'filled' : ''
+                                           ]"
+                                        ></i>
+                                    </span>
+                                    <span class="rating-value">{{ parseFloat(selectedPlace.rating).toFixed(1) }}</span>
+                                </div>
+                                
+                                <div class="detail-meta">
+                                    <p><i class="fas fa-tag"></i> {{ selectedPlace.type }}</p>
+                                    <p><i class="fas fa-fire"></i> 人气: {{ parseFloat(selectedPlace.popularity).toFixed(1) }}</p>
+                                </div>
+                                
+                                <div class="detail-keywords">
+                                    <span class="keyword-tag" v-for="keyword in selectedPlace.keywords" :key="keyword">{{ keyword }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 推荐菜品部分 -->
+                        <div class="detail-section">
+                            <h3><i class="fas fa-utensils"></i> 推荐菜品</h3>
+                            
+                            <div class="food-filter">
+                                <button class="filter-btn" :class="{active: foodSortBy === 'rating'}" @click="sortFoods('rating')">按评分</button>
+                                <button class="filter-btn" :class="{active: foodSortBy === 'popularity'}" @click="sortFoods('popularity')">按热度</button>
+                                <button class="filter-btn" :class="{active: foodSortBy === 'distance'}" @click="sortFoods('distance')">按距离</button>
+                            </div>
+                            
+                            <div class="food-cards">
+                                <div class="food-card" v-for="food in foods" :key="food.name" @click="showFoodDetail(food)">
+                                    <div class="food-info">
+                                        <h4>{{ food.name }}</h4>
+                                        <div class="food-meta">
+                                            <span><i class="fas fa-star"></i> {{ food.rating }}</span>
+                                            <span><i class="fas fa-fire"></i> {{ food.popularity }}</span>
+                                            <span><i class="fas fa-map-marker-alt"></i> {{ food.distance }}km</span>
+                                        </div>
+                                        <div class="food-description">{{ food.description }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 菜品详情弹窗 -->
+                <div class="food-detail-modal" v-if="showFoodDetailModal" @click.self="closeFoodDetail">
+                    <div class="food-detail-content">
+                        <div class="food-detail-close" @click="closeFoodDetail">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        
+                        <div class="food-detail-header">
+                            <img src="/backend/food.jpg" :alt="selectedFood.name" class="food-detail-image">
+                            <div class="food-detail-info">
+                                <h3>{{ selectedFood.name }}</h3>
+                                <div class="food-detail-meta">
+                                    <p><i class="fas fa-star"></i> 评分: {{ selectedFood.rating }}</p>
+                                    <p><i class="fas fa-fire"></i> 热度: {{ selectedFood.popularity }}</p>
+                                    <p><i class="fas fa-map-marker-alt"></i> 距离: {{ selectedFood.distance }}km</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="food-detail-description">
+                            {{ selectedFood.description }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 翻页控件 -->
+                <div class="pagination" v-if="totalPages > 1">
+                    <button class="pagination-btn" @click="previousPage" :disabled="currentPage === 1">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <button 
+                        v-for="page in pageNumbers" 
+                        :key="page"
+                        class="pagination-btn" 
+                        :class="{active: page === currentPage}"
+                        @click="page === '...' ? null : goToPage(page)"
+                    >
+                        {{ page }}
+                    </button>
+                    
+                    <button class="pagination-btn" @click="nextPage" :disabled="currentPage === totalPages">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="pagination-info" v-if="totalCount > 0">
+                    显示 {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} 条，共 {{ totalCount }} 条
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航栏 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 智慧旅游管理系统</p>
+            </div>
+        </footer>
+    </div>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="../src/place-search.js"></script>
+</body>
+</html> 

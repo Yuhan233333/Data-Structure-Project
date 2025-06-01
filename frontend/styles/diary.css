@@ -1,0 +1,799 @@
+/**
+ * 日记页面样式
+ * 包含日记列表、编辑器和图片上传预览等功能
+ */
+
+/* ====================
+   主布局
+==================== */
+.diary-layout {
+    display: flex;
+    gap: 2rem;
+    height: calc(100vh - 120px); /* 减去导航栏和底部的高度 */
+    margin: 1rem;
+}
+
+/* ====================
+   日记列表侧边栏
+==================== */
+.diary-sidebar {
+    width: 300px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dcdfe6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    color: #303133;
+}
+
+.new-diary-btn {
+    padding: 0.5rem 1rem;
+    background: #409EFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.new-diary-btn:hover {
+    background: #66b1ff;
+}
+
+.diary-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.diary-item {
+    padding: 1rem;
+    border-radius: 4px;
+    background: #f5f7fa;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.diary-item:hover {
+    background: #ecf5ff;
+}
+
+.diary-item.active {
+    background: #409EFF;
+    color: #fff;
+}
+
+.diary-item-title {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.diary-item-date {
+    font-size: 0.9rem;
+    color: #909399;
+}
+
+.diary-item.active .diary-item-date {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ====================
+   日记编辑区
+==================== */
+.diary-editor {
+    flex: 1;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dcdfe6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-input {
+    font-size: 1.5rem;
+    border: none;
+    outline: none;
+    width: 50%;
+    color: #303133;
+}
+
+.editor-tools {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    background: #fff;
+    color: #606266;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tool-btn:hover {
+    border-color: #409EFF;
+    color: #409EFF;
+}
+
+.tool-btn i {
+    font-size: 1rem;
+}
+
+/* ====================
+   Quill编辑器自定义样式
+==================== */
+#editor {
+    flex: 1;
+    overflow: hidden;
+}
+
+.ql-container {
+    height: calc(100% - 42px);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ====================
+   图片上传预览
+==================== */
+.image-preview {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.preview-header {
+    padding: 1rem;
+    background: #f5f7fa;
+    border-bottom: 1px solid #dcdfe6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-content {
+    padding: 1rem;
+    max-height: calc(80vh - 60px);
+    overflow-y: auto;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.image-item {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.image-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.image-actions {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.image-item:hover .image-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    color: #606266;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.action-btn:not(.delete):hover {
+    background: #409EFF;
+    color: #fff;
+}
+
+.action-btn.delete:hover {
+    background: #f56c6c;
+    color: #fff;
+}
+
+/* ====================
+   响应式布局
+==================== */
+@media (max-width: 1024px) {
+    .diary-layout {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .diary-sidebar {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .editor-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .title-input {
+        width: 100%;
+    }
+
+    .editor-tools {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    #editor {
+        height: 400px;
+    }
+
+    .image-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+/* 日记助手页面样式 */
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #45a049;
+    --text-color: #333;
+    --border-color: #ddd;
+    --hover-color: #f5f5f5;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 主要内容区域 */
+.main-content {
+    padding: 20px;
+    margin-top: 60px;
+    min-height: calc(100vh - 120px);
+    background-color: #f9f9f9;
+}
+
+/* 日记容器 */
+.diary-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 20px;
+    position: relative;
+}
+
+/* 日记编辑器 */
+.diary-editor {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px var(--shadow-color);
+    overflow: hidden;
+}
+
+/* 编辑器头部 */
+.editor-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 标题输入框 */
+.title-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2em;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* 编辑器工具栏 */
+.editor-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* 工具栏按钮 */
+.tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tool-btn:hover {
+    background: var(--hover-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.tool-btn i {
+    font-size: 1.1em;
+}
+
+/* 编辑器主体 */
+#editor {
+    height: 500px;
+    padding: 20px;
+}
+
+/* 历史日记列表 */
+.diary-list {
+    width: 300px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.list-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-header h3 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 5px;
+}
+
+.close-btn:hover {
+    color: var(--primary-color);
+}
+
+.list-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.diary-item {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.diary-item:hover {
+    background-color: var(--hover-color);
+}
+
+.diary-item.active {
+    background-color: #e8f5e9;
+    border-left: 3px solid var(--primary-color);
+}
+
+.diary-item-content {
+    flex: 1;
+}
+
+.diary-item h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-color);
+}
+
+.diary-date {
+    margin: 0;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #ff5252;
+    cursor: pointer;
+    padding: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.diary-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    color: #ff0000;
+}
+
+/* 图片预览 */
+.image-preview {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px var(--shadow-color);
+    z-index: 1000;
+}
+
+.preview-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-header h3 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.preview-content {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.image-item {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.image-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.image-actions {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-item:hover .image-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: #ff5252;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .diary-container {
+        flex-direction: column;
+    }
+
+    .diary-list {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .editor-tools {
+        flex-direction: column;
+    }
+
+    .tool-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .image-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* 评分区域样式 */
+.rating-section {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #f5f7fa;
+    border-radius: 8px;
+}
+
+.rating-section h3 {
+    color: #303133;
+    margin-bottom: 1rem;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.rating-stars i {
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.rating-stars i:hover {
+    transform: scale(1.2);
+}
+
+.rating-value {
+    color: #606266;
+    font-size: 1rem;
+}
+
+/* 日记列表中的评分显示 */
+.diary-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.rating-label {
+    color: #606266;
+    font-size: 0.9rem;
+}
+
+.stars {
+    display: flex;
+    gap: 0.2rem;
+}
+
+.stars i {
+    font-size: 0.9rem;
+}
+
+/* 日记项操作按钮 */
+.diary-item-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.delete-btn {
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: #ff4d4f;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.delete-btn:hover {
+    color: #ff7875;
+}
+
+/* 日记项样式 */
+.diary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    transition: all 0.3s;
+}
+
+.diary-item:hover {
+    background: #f5f7fa;
+}
+
+.diary-item.active {
+    background: #e6f7ff;
+}
+
+.diary-item-content {
+    flex: 1;
+    cursor: pointer;
+}
+
+.diary-item-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: #303133;
+}
+
+.diary-date {
+    color: #909399;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.diary-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.export-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s;
+}
+
+.export-btn:hover {
+    background-color: #45a049;
+}
+
+.export-btn i {
+    font-size: 14px;
+}
+
+/* 日记列表头部操作按钮 */
+.list-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.list-actions .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9em;
+}
+
+.list-actions .action-btn:hover {
+    background: var(--hover-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.list-actions .action-btn i {
+    font-size: 1em;
+}
+
+.list-actions .close-btn {
+    margin-left: 10px;
+}
+
+.diary-bottom-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0 10px 0;
+}
+
+.diary-bottom-actions .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s;
+}
+
+.diary-bottom-actions .action-btn:hover {
+    background: var(--hover-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.diary-bottom-actions .action-btn i {
+    font-size: 1.1em;
+} 

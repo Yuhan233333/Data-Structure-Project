@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智慧旅游管理系统</title>
+
+  <!-- 自定义样式 -->
+  <link rel="stylesheet" href="../styles/route-planning1.css" />
+  <link rel="stylesheet" href="./styles/main.css" />
+  <!-- 图标库 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 顶部导航栏 -->
+    <nav class="nav-bar">
+      <div class="logo">
+        <img src="./assets/logo.png" alt="Logo" />
+        <span>智慧旅游</span>
+      </div>
+      <div class="nav-links">
+        <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+        <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+        <a href="place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+        <a href="diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="route-choice-panel">
+        <h2>请选择导航类型</h2>
+        <div class="route-choice-buttons">
+          <a href="route-planning1.html?mode=internal" class="btn-primary">内部导航</a>
+          <a href="route-planning1.html?mode=external" class="btn-primary">外部导航</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ↓↓↓ 新增：底部填充图片 ↓↓↓ -->
+    <div class="footer-image">
+      <!-- 换成你自己的图片路径即可 -->
+      <img src="../assets/tiantan.jpeg" alt="旅游主题图" />
+    </div>
+    <!-- ↑↑↑ 新增结束 ↑↑↑ -->
+  </div>
+
+  <script>
+    function navigate(type) {
+      // 跳转并携带导航类型参数
+      window.location.href = `route-planning1.html?type=${type}`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员界面 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/admin.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="../assets/logo.jpg" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+                <a href="#" class="active"><i class="fas fa-cog"></i> 管理员</a>
+            </div>
+        </nav>
+        
+        <div class="admin-container">
+            <header class="admin-header">
+                <h1>系统管理员界面</h1>
+                <button @click="logout" class="logout-btn">退出登录</button>
+            </header>
+            
+            <div class="admin-content">
+                <!-- 用户列表 -->
+                <div class="user-list-section">
+                    <h2>用户管理</h2>
+                    <div class="user-list">
+                        <div v-for="user in users" :key="user.username" class="user-item">
+                            <span>{{ user.username }}</span>
+                            <button @click="deleteUser(user.username)" class="delete-btn">删除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 日记管理 -->
+                <div class="diary-list-section">
+                    <h2>日记管理</h2>
+                    <div class="diary-list">
+                        <div v-for="diary in diaries" :key="diary.id" class="diary-item">
+                            <div class="diary-info">
+                                <h3 class="diary-title">{{ diary.title }}</h3>
+                                <div class="diary-meta">
+                                    <span class="diary-author"><i class="fas fa-user"></i> {{ diary.author }}</span>
+                                    <span class="diary-date"><i class="fas fa-clock"></i> {{ new Date(diary.createdAt).toLocaleString() }}</span>
+                                    <span class="diary-rating" v-if="diary.ratings && diary.ratings.length > 0">
+                                        <i class="fas fa-star"></i> {{ (diary.ratings.reduce((acc, r) => acc + r.score, 0) / diary.ratings.length).toFixed(1) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <button @click="deleteDiary(diary.id)" class="delete-btn">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航栏 -->
+            <footer class="footer">
+                <div class="footer-content">
+                    <p>&copy; 2024 智慧旅游管理系统</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 管理员页面脚本 -->
+    <script src="../src/admin.js"></script>
+</body>
+</html> 

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧旅游管理系统</title>
+    <!-- Element Plus -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="./styles/main.css">
+    <!-- 图标库 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="./assets/logo.jpg" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="active"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="views/route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="views/place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="views/diary-choice.html"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="views/profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 智能推荐面板 -->
+            <section class="recommendation-panel">
+                <div class="panel-header">
+                    <h2>智能推荐</h2>
+                    <div class="tabs">
+                        <button class="tab" :class="{active: activeTab === '热门榜单'}" @click="switchTab('热门榜单')">热门榜单</button>
+                        <button class="tab" :class="{active: activeTab === '随机推荐'}" @click="switchTab('随机推荐')">随机推荐</button>
+                    </div>
+                </div>
+                
+                <!-- 筛选选项（仅热门榜单显示） -->
+                <div class="filter-options" v-if="activeTab === '热门榜单'">
+                    <div class="filter-group">
+                        <span>类型筛选：</span>
+                        <button 
+                            class="filter-btn" 
+                            :class="{active: selectedTypes.length === 0 || selectedTypes.length === allTypes.length}" 
+                            @click="toggleAllTypes"
+                        >
+                            全部
+                        </button>
+                        <button 
+                            v-for="type in allTypes" 
+                            :key="type" 
+                            class="filter-btn" 
+                            :class="{active: selectedTypes.includes(type)}"
+                            @click="toggleType(type)"
+                        >
+                            {{ type }}
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 随机推荐刷新按钮 -->
+                <div class="refresh-container" v-if="activeTab === '随机推荐'">
+                    <button class="refresh-btn" @click="refreshRandomRecommendations">
+                        <i class="fas fa-sync-alt"></i> 刷新推荐
+                    </button>
+                </div>
+                
+                <!-- 加载状态 -->
+                <div v-if="loading" class="loading-container">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>正在加载景点数据...</p>
+                </div>
+                
+                <!-- 无数据提示 -->
+                <div v-else-if="filteredRecommendations.length === 0" class="no-data-container">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>没有符合条件的景点</p>
+                </div>
+                
+                <!-- 景点卡片 -->
+                <div v-else class="cards-container">
+                    <div class="card" v-for="place in filteredRecommendations" :key="place.id">
+                        <img :src="place.image" alt="景点图片" @error="handleImageError">
+                        <div class="card-content">
+                            <h3>{{ place.name }}</h3>
+                            <div class="rating-stars">
+                                <i v-for="n in 5" :key="n" 
+                                   :class="[
+                                       'fas', 
+                                       n <= Math.floor(place.rating) ? 'fa-star' : 
+                                       (n - 0.5 <= place.rating ? 'fa-star-half-alt' : 'fa-star'),
+                                       n <= Math.floor(place.rating) || n - 0.5 <= place.rating ? 'filled' : ''
+                                   ]"></i>
+                                <span>{{ place.rating }}</span>
+                            </div>
+                            <div class="place-info">
+                                <p>{{ place.type }}</p>
+                                <p class="popularity"><i class="fas fa-fire"></i> 人气: {{ parseFloat(place.popularity).toFixed(1) }}</p>
+                            </div>
+                            <div class="keywords-container">
+                                <span class="keyword-tag" v-for="keyword in place.keywords" :key="keyword">{{ keyword }}</span>
+                            </div>
+                            <button class="btn-primary" @click="expressInterest(place)">
+                                <i class="fas fa-heart"></i> 我感兴趣
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部导航栏 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 智慧旅游管理系统</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 自定义脚本 -->
+    <script src="./src/main.js"></script>
+</body>
+</html> 

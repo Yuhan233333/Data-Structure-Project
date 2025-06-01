@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看日记 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/diary-view.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="../assets/logo.jpg" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="#" class="active"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <div class="diary-view-container">
+                <!-- 日记列表侧边栏 -->
+                <div class="diary-sidebar">
+                    <div class="sidebar-header">
+                        <h2>所有日记</h2>
+                        <div class="search-box">
+                            <input type="text" v-model="searchQuery" placeholder="搜索日记">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    <div class="diary-list">
+                        <div v-for="diary in filteredDiaries" 
+                             :key="diary.id" 
+                             class="diary-item"
+                             :class="{ active: diary.id === currentDiaryId }"
+                             @click="loadDiary(diary)">
+                            <h3>{{ diary.title }}</h3>
+                            <p class="author">作者：{{ diary.author }}</p>
+                            <p class="date">{{ formatDate(diary.createdAt) }}</p>
+                            <p class="views"><i class="fas fa-eye"></i> {{ diary.views || 0 }} 次浏览</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 日记内容区域 -->
+                <div class="diary-content">
+                    <div v-if="currentDiary" class="diary-detail">
+                        <div class="diary-header">
+                            <h1>{{ currentDiary.title }}</h1>
+                            <div class="diary-meta">
+                                <span class="author">作者：{{ currentDiary.author }}</span>
+                                <span class="date">发布时间：{{ formatDate(currentDiary.createdAt) }}</span>
+                                <span class="views"><i class="fas fa-eye"></i> {{ currentDiary.views || 0 }} 次浏览</span>
+                            </div>
+                        </div>
+                        <div class="diary-body" v-html="currentDiary.content"></div>
+                        <!-- 评分栏开始 -->
+                        <div class="diary-rating-section" v-if="currentDiary">
+                            <div style="margin: 20px 0;">
+                                <span>平均评分：</span>
+                                <span v-if="currentDiary.ratings && currentDiary.ratings.length > 0">
+                                    {{ averageRating(currentDiary) }} / 10
+                                </span>
+                                <span v-else>暂无评分</span>
+                            </div>
+                            <div v-if="currentUser">
+                                <span>我的评分：</span>
+                                <span class="rating-stars">
+                                    <i v-for="n in 10"
+                                       :key="n"
+                                       class="fas fa-star"
+                                       :style="{ color: n <= (hoverRating || myRating) ? '#ffd700' : '#ddd' }"
+                                       @click="rateDiary(n)"
+                                       @mouseover="hoverRating = n"
+                                       @mouseleave="hoverRating = 0"></i>
+                                </span>
+                                <span>{{ myRating }}/10</span>
+                            </div>
+                        </div>
+                        <!-- 评分栏结束 -->
+                    </div>
+                    <div v-else class="no-diary">
+                        <i class="fas fa-book-open"></i>
+                        <p>选择一篇日记开始阅读</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导入导出按钮 -->
+        <div class="diary-bottom-actions">
+            <button class="action-btn" @click="exportDiaries">
+                <i class="fas fa-file-export"></i> 导出日记
+            </button>
+            <button class="action-btn" @click="importDiaries">
+                <i class="fas fa-file-import"></i> 导入日记
+            </button>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 智慧旅游管理系统</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 日记查看页面脚本 -->
+    <script src="../src/diary-view.js"></script>
+</body>
+</html> 

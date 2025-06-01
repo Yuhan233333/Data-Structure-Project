@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日记助手 - 智慧旅游管理系统</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/diary-select.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="nav-bar">
+            <div class="logo">
+                <img src="../assets/logo.jpg" alt="Logo">
+                <span>智慧旅游</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html"><i class="fas fa-compass"></i> 智能推荐</a>
+                <a href="route-planning.html"><i class="fas fa-route"></i> 路线规划</a>
+                <a href="place-search.html"><i class="fas fa-map-marked-alt"></i> 场所查询</a>
+                <a href="#" class="active"><i class="fas fa-book"></i> 日记助手</a>
+                <a href="profile.html"><i class="fas fa-user-circle"></i> 个人中心</a>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <div class="select-container">
+                <h1>日记助手</h1>
+                <div class="options-grid">
+                    <div class="option-card" @click="navigateTo('edit')">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h2>编辑日记</h2>
+                        <p>创建新日记或编辑历史日记</p>
+                    </div>
+                    <div class="option-card" @click="navigateTo('view')">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                        <h2>查看日记</h2>
+                        <p>浏览所有用户的旅行日记</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航栏 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 智慧旅游管理系统</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- 日记选择页面脚本 -->
+    <script src="../src/diary-select.js"></script>
+</body>
+</html> 

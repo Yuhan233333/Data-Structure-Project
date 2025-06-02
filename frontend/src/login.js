@@ -50,10 +50,10 @@ const app = Vue.createApp({
                     // 生成一个简单的token（实际应用中应该使用JWT等更安全的方式）
                     const token = btoa(`${data.user.username}:${Date.now()}`);
                     
-                    // 保存认证信息到本地存储
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('role', data.user.role);
-                    localStorage.setItem('username', data.user.username);
+                    // 保存认证信息到会话存储
+                    sessionStorage.setItem('token', token);
+                    sessionStorage.setItem('role', data.user.role);
+                    sessionStorage.setItem('username', data.user.username);
 
                     // 根据用户角色跳转到不同页面
                     if (data.user.role === 'admin') {

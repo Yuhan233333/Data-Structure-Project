@@ -76,8 +76,8 @@ const app = Vue.createApp({
         fetchPlaces() {
             this.loading = true;
             
-            // 构建API URL，使用top端点
-            let url = `http://localhost:5000/api/places/top?count=${this.pageSize}&sort_by=${this.sortBy}`;
+            // 构建API URL，使用top端点，添加分页参数
+            let url = `http://localhost:5000/api/places/top?count=${this.pageSize}&sort_by=${this.sortBy}&page=${this.currentPage}`;
             
             // 添加类型过滤
             if (this.activeType) {

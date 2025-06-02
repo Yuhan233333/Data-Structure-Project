@@ -28,12 +28,6 @@ wheels/
 *.swo
 .cursor/
 
-# 项目特定
-# 忽略空文件夹
-**/logs/
-**/diaries/
-**/users/
-scripts/
 
 # 数据文件
 *.log

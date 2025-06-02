@@ -41,23 +41,23 @@ def generate_route_map(
 ):
     """Compute *distance-shortest* & *time-shortest* tours and render to HTML."""
 
-    # ---------- 0.1 规范输入：把 end 始终放在列表最后 -----------------------------
+    #规范输入：把 end 始终放在列表最后
     waypoints = waypoints or []
     names: list[str] = [start_name] + waypoints + ([end] if end else [])
 
-    # ---------- 1 读景点坐标 ----------------------------------------------------
+    #读景点坐标
     here = os.path.dirname(__file__)
     data_file = "internal-places.json" if mode == "internal" else "external-places.json"
     with open(os.path.join(here, "..", "frontend", "data", data_file), "r", encoding="utf-8") as f:
         places = {p["name"]: (p["lat"], p["lng"]) for p in json.load(f)}
-
+    print("景点坐标已读入")
     def _gcj_to_wgs(name: str):
         lat_gcj, lon_gcj = places[name]
         return MapDatumTrans.gcj02_to_wgs84(lat_gcj, lon_gcj)
 
     coords: list[tuple[float, float]] = [_gcj_to_wgs(n) for n in names]
 
-    # ---------- 2 取子图 --------------------------------------------------------
+    #取子图
     lat_c = sum(lat for lat, _ in coords) / len(coords)
     lon_c = sum(lon for _, lon in coords) / len(coords)
     max_r = max(_haversine_m(lat_c, lon_c, lat, lon) for lat, lon in coords) + 200  # +200 m buffer
@@ -66,13 +66,13 @@ def generate_route_map(
     G = ox.graph_from_point((lat_c, lon_c), dist=max_r, network_type="all", simplify=False)
     nodes_gdf, edges_gdf = ox.graph_to_gdfs(G, nodes=True, edges=True)
     node_xy = dict(zip(nodes_gdf.index, zip(nodes_gdf["y"], nodes_gdf["x"])))
-
-    # ---------- 2.1 为每条边生成独立拥挤度 ----------------------------------------
+    print("点已生成")
+    #为每条边生成独立拥挤度
     n_edges = len(edges_gdf)
     edges_gdf["car_cong"] = np.random.uniform(0.3, 1.5, size=n_edges)
     edges_gdf["bike_cong"] = np.random.uniform(0.3, 1.5, size=n_edges)
     edges_gdf["walk_cong"] = np.random.uniform(0.3, 1.5, size=n_edges)
-
+    print("拥挤度生成")
     # build a map: edge index tuple -> (car_cong, bike_cong, walk_cong)
     congestion_map = {}
     for idx, row in edges_gdf.iterrows():
@@ -81,7 +81,7 @@ def generate_route_map(
         walk_c = float(row["walk_cong"])
         congestion_map[idx] = (car_c, bike_c, walk_c)
 
-    # ---------- 3 生成加权图（距离 / 时间），使用边级拥挤度 -------------------------
+    #生成加权图（距离 / 时间），使用边级拥挤度
     dist_graph: dict[int, list[tuple[int, float]]] = {}
     time_graph: dict[int, list[tuple[int, float]]] = {}
 
@@ -105,7 +105,7 @@ def generate_route_map(
         # 取该边的拥挤度
         car_c, bike_c, walk_c = congestion_map[idx]
 
-        # ====== 汽车最大速度逻辑：只允许以下 highway 类型通行汽车 ======
+        #汽车最大速度逻辑：只允许以下 highway 类型通行汽车
         if hw0 in {"motorway", "trunk", "primary", "secondary", "tertiary"}:
             base_speed_car = 60
             speed_car_kmh = base_speed_car * car_c
@@ -119,21 +119,19 @@ def generate_route_map(
             # footway/path/pedestrian/track/living_street/cycleway 等，都禁止汽车通行
             speed_car_kmh = 0
 
-        # ====== 自行车最大速度逻辑 ======
-        # cycleway 肯定给高一点；residential, service, unclassified, road 也给 20
+        #自行车最大速度逻辑
         if hw0 == "cycleway":
             speed_bike_kmh = 20 * bike_c
         elif hw0 in {"residential", "service", "road"}:
             speed_bike_kmh = 10 * bike_c
         else:
-            # 其它道路自行车能走但慢一些
             speed_bike_kmh = 0 * bike_c
 
-        # ====== 步行最大速度逻辑 ======
+        #步行最大速度逻辑
         if hw0 in {"footway", "path", "pedestrian", "living_street", "track"}:
             speed_walk_kmh = 7 * walk_c
         elif hw0 in {"residential", "service", "unclassified", "road"}:
-            # 城市道路上也有人行道可走，给 7 km/h
+            # 城市道路上也有人行道可走，7 km/h
             speed_walk_kmh = 7 * walk_c
         else:
             # 其它（如高速）强制不让行人走
@@ -159,13 +157,13 @@ def generate_route_map(
         else:
             best_mode_map[idx] = 2
 
-    # ---------- 4 找最近节点 ---------------------------------------------------
+    #找最近节点
     def _nearest_node(lat, lon):
         return min(node_xy, key=lambda n: _haversine_m(lat, lon, *node_xy[n]))
 
     node_ids = [_nearest_node(lat, lon) for lat, lon in coords]
 
-    # ---------- 5 迪杰斯特拉 & TSP ------------------------------------------------
+    #迪杰斯特拉 & TSP
     def _dijkstra(graph, s):
         dist = {n: float("inf") for n in graph}
         dist[s] = 0
@@ -220,15 +218,15 @@ def generate_route_map(
         path_d = _tsp_path(dist_graph)
         path_t = _tsp_path(time_graph)
 
-    # ---------- 6 绘图 --------------------------------------------------------
+    #绘图
     lat0, lon0 = coords[0]
     m = folium.Map(location=[lat0, lon0], zoom_start=15, tiles="CartoDB positron")
-
+    print("图已生成")
     # 路线折线
     folium.PolyLine([node_xy[n] for n in path_d], color="blue", weight=5, popup="距离最短").add_to(m)
     folium.PolyLine([node_xy[n] for n in path_t], color="brown", weight=5, popup="时间最短").add_to(m)
 
-    # ---------- 6.1 动画：在路径上添加移动点 ------------------------------------------------
+    #动画：在路径上添加移动点
     tz = ZoneInfo("Asia/Shanghai")
     base_t = datetime.now(tz)
     feats = []
@@ -270,14 +268,14 @@ def generate_route_map(
         auto_play=True,
         loop=False
     ).add_to(m)
-
+    print("动画已生成")
     # 起点 / 途经点 / 终点
     for idx_pt, (name, (lat, lon)) in enumerate(zip(names, coords)):
         color = "red" if idx_pt == 0 else "green"
         icon = "flag" if idx_pt == 0 else "info-sign"
         folium.Marker([lat, lon], popup=name, icon=folium.Icon(color=color, icon=icon)).add_to(m)
-
-    # ---------- 7 边拥挤度 & 最优模式可视化 ------------------------------------------
+    print("起始点已添加")
+    #边拥挤度 & 最优模式可视化
     # 三种模式的渐变配色：汽车(灰→绿)、自行车(浅黄→深橙)、行人(浅粉→深红)
     for idx, row in edges_gdf.iterrows():
         u, v, key = idx
@@ -314,8 +312,8 @@ def generate_route_map(
             color = f"#{r:02x}{g:02x}{b:02x}"
 
         folium.PolyLine(coords_line, color=color, weight=2, opacity=0.6).add_to(m)
-
-    # ---------- 8 图例：显示拥挤度范围、模式颜色及路径说明 -------------------------------
+    print("道路已生成")
+    #图例：显示拥挤度范围、模式颜色及路径说明
     all_car = edges_gdf["car_cong"].values
     car_min, car_max = float(all_car.min()), float(all_car.max())
     all_bike = edges_gdf["bike_cong"].values
@@ -339,8 +337,8 @@ def generate_route_map(
         </div>
     """
     m.get_root().html.add_child(Element(legend_html))
-
-    # ---------- 9 保存 --------------------------------------------------------
+    print("图例已添加")
+    #保存
     save_dir = os.path.join(here, "..", "frontend", "views")
     os.makedirs(save_dir, exist_ok=True)
     m.save(os.path.join(save_dir, "route-planning2.html"))

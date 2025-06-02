@@ -9,6 +9,9 @@ auth = Blueprint('auth', __name__)
 USERS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'users.txt')
 USER_PROFILES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'users')
 
+# 在线用户信息文件路径
+ONLINE_USERS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'online_users.json')
+
 # 确保用户配置文件目录存在
 os.makedirs(USER_PROFILES_DIR, exist_ok=True)
 
@@ -71,6 +74,23 @@ def save_users(users):
         for username, password in users.items():
             f.write(f"{username}:{password}\n")
 
+# 加载在线用户信息
+def load_online_users():
+    """从文件加载在线用户信息"""
+    if not os.path.exists(ONLINE_USERS_FILE):
+        return {}
+    with open(ONLINE_USERS_FILE, 'r', encoding='utf-8') as f:
+        try:
+            return json.load(f)
+        except Exception:
+            return {}
+
+# 保存在线用户信息
+def save_online_users(online_users):
+    """保存在线用户信息到文件"""
+    with open(ONLINE_USERS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(online_users, f)
+
 @auth.route('/api/users', methods=['GET'])
 def get_users():
     """获取所有用户列表"""
@@ -126,7 +146,7 @@ def delete_user(username):
 
 @auth.route('/api/login', methods=['POST'])
 def login():
-    """用户登录"""
+    """用户登录，增加同一用户名唯一登录检测"""
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -135,16 +155,25 @@ def login():
         return jsonify({'success': False, 'message': '用户名和密码不能为空'}), 400
 
     users = load_users()
-    
+    online_users = load_online_users()
+
+    # 检查用户名是否已在线
+    if username in online_users:
+        return jsonify({'success': False, 'message': '该用户已在其他地方登录，请先退出后再登录'}), 403
+
     if username in users and users[username] == password:
+        # 登录成功，记录在线状态，生成简单token
+        token = f"{username}_{datetime.now().timestamp()}"
+        online_users[username] = token
+        save_online_users(online_users)
         return jsonify({
             'success': True,
             'user': {
                 'username': username,
                 'role': 'admin' if username == 'admin' else 'user'
-            }
+            },
+            'token': token
         })
-    
     return jsonify({'success': False, 'message': '用户名或密码错误'}), 401
 
 @auth.route('/api/register', methods=['POST'])

@@ -11,8 +11,8 @@ const app = Vue.createApp({
     data() {
         return {
             // 用户基本信息
-            username: localStorage.getItem('username') || '',
-            userRole: localStorage.getItem('role') || 'user',
+            username: sessionStorage.getItem('username') || '',
+            userRole: sessionStorage.getItem('role') || 'user',
             activeTab: 'security', // 当前激活的标签页
 
             // 密码修改表单
@@ -47,8 +47,8 @@ const app = Vue.createApp({
          */
         async checkAuth() {
             try {
-                const username = localStorage.getItem('username');
-                const token = localStorage.getItem('token');
+                const username = sessionStorage.getItem('username');
+                const token = sessionStorage.getItem('token');
                 
                 if (!username || !token) {
                     window.location.href = 'login.html';
@@ -63,9 +63,9 @@ const app = Vue.createApp({
                 });
 
                 if (response.status === 401) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('username');
-                    localStorage.removeItem('role');
+                    sessionStorage.removeItem('token');
+                    sessionStorage.removeItem('username');
+                    sessionStorage.removeItem('role');
                     window.location.href = 'login.html';
                     return;
                 }
@@ -78,7 +78,7 @@ const app = Vue.createApp({
 
                 if (data.user && data.user.role) {
                     this.userRole = data.user.role;
-                    localStorage.setItem('role', data.user.role);
+                    sessionStorage.setItem('role', data.user.role);
                 }
             } catch (error) {
                 console.error('认证检查失败:', error);
@@ -101,10 +101,10 @@ const app = Vue.createApp({
                     type: 'warning',
                 }
             ).then(() => {
-                // 清除本地存储的用户信息
-                localStorage.removeItem('token');
-                localStorage.removeItem('username');
-                localStorage.removeItem('role');
+                // 清除会话存储的用户信息
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('username');
+                sessionStorage.removeItem('role');
                 
                 // 显示退出成功消息
                 ElementPlus.ElMessage.success('退出登录成功');
@@ -132,7 +132,7 @@ const app = Vue.createApp({
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                     },
                     body: JSON.stringify({
                         oldPassword: this.passwordForm.oldPassword,

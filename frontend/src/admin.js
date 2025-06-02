@@ -25,7 +25,7 @@ const app = Vue.createApp({
             try {
                 const response = await fetch(`${API_BASE_URL}/api/users`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                     }
                 });
                 const data = await response.json();
@@ -54,7 +54,7 @@ const app = Vue.createApp({
                 const response = await fetch(`${API_BASE_URL}/api/users/${username}`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                     }
                 });
 
@@ -78,9 +78,9 @@ const app = Vue.createApp({
          */
         logout() {
             // 清除所有认证信息
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-            localStorage.removeItem('username');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('role');
+            sessionStorage.removeItem('username');
             // 跳转到登录页面
             window.location.href = 'login.html';
         },
@@ -90,7 +90,7 @@ const app = Vue.createApp({
          * 验证当前用户是否具有管理员权限
          */
         async checkAdminAuth() {
-            const role = localStorage.getItem('role');
+            const role = sessionStorage.getItem('role');
             if (role !== 'admin') {
                 ElementPlus.ElMessage.warning('无权访问管理员页面');
                 window.location.href = 'login.html';

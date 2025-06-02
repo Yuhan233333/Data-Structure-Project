@@ -12,14 +12,14 @@ const app = createApp({
         const currentDiaryId = ref(null);
         const diaryList = ref([]); // 添加日记列表
         const showDiaryList = ref(false); // 控制日记列表显示
-        const currentUser = ref(localStorage.getItem('username')); // 获取当前登录用户
+        const currentUser = ref(sessionStorage.getItem('username')); // 获取当前登录用户
         const userRating = ref(0);        // 用户当前评分
         const hoverRating = ref(0);       // 鼠标悬停时的评分
 
         // 检查用户是否登录
         const checkLogin = () => {
-            const token = localStorage.getItem('token');
-            const username = localStorage.getItem('username');
+            const token = sessionStorage.getItem('token');
+            const username = sessionStorage.getItem('username');
             
             if (!token || !username) {
                 ElementPlus.ElMessage.warning('请先登录');
@@ -296,8 +296,8 @@ const app = createApp({
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('token'),
-                        'X-Username': localStorage.getItem('username')
+                        'Authorization': sessionStorage.getItem('token'),
+                        'X-Username': sessionStorage.getItem('username')
                     },
                     body: JSON.stringify({ diaries })
                 });
@@ -320,8 +320,8 @@ const app = createApp({
                 // 调用后端导入接口
                 const response = await fetch('/api/import/diaries', {
                     headers: {
-                        'Authorization': localStorage.getItem('token'),
-                        'X-Username': localStorage.getItem('username')
+                        'Authorization': sessionStorage.getItem('token'),
+                        'X-Username': sessionStorage.getItem('username')
                     }
                 });
 

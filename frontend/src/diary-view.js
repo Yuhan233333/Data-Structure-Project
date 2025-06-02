@@ -181,8 +181,8 @@ const app = Vue.createApp({
 
         // 检查登录状态
         checkLogin() {
-            const token = localStorage.getItem('token');
-            const username = localStorage.getItem('username');
+            const token = sessionStorage.getItem('token');
+            const username = sessionStorage.getItem('username');
             
             if (!token || !username) {
                 ElementPlus.ElMessage.warning('请先登录');

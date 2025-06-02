@@ -186,6 +186,7 @@ def get_top_places():
     count = request.args.get('count', default=10, type=int)
     type_filter = request.args.get('type', default=None, type=str)
     sort_by = request.args.get('sort_by', default='mixed', type=str)
+    page = request.args.get('page', default=1, type=int)  # 新增页码参数
     
     # 定义过滤函数
     filter_func = None
@@ -201,10 +202,22 @@ def get_top_places():
     else:  # mixed
         key_func = lambda spot: 0.5 * spot.rating + 0.5 * spot.popularity / 10
     
-    # 获取前k个景点
-    top_spots = recommendation_system.find_top_k_spots(count, filter_func, key_func)
+    # 先获取所有符合条件的景点
+    filtered_spots = recommendation_system.spots
+    if filter_func:
+        filtered_spots = [spot for spot in recommendation_system.spots if filter_func(spot)]
     
-    return jsonify([spot.to_dict() for spot in top_spots])
+    # 根据排序键对所有符合条件的景点进行排序
+    sorted_spots = sorted(filtered_spots, key=key_func, reverse=True)
+    
+    # 计算分页
+    start_idx = (page - 1) * count
+    end_idx = start_idx + count
+    
+    # 获取当前页的景点
+    paged_spots = sorted_spots[start_idx:end_idx]
+    
+    return jsonify([spot.to_dict() for spot in paged_spots])
 
 @place_bp.route('/api/places/types', methods=['GET'])
 def get_place_types():

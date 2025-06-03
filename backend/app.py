@@ -3,6 +3,8 @@ import math
 import threading
 import webbrowser
 import json
+import zlib
+import base64
 from datetime import datetime
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
@@ -18,7 +20,7 @@ app.register_blueprint(auth)
 app.register_blueprint(place_bp)
 
 # ==========================
-#  下面新增“附近匹配”所需代码
+#  下面新增"附近匹配"所需代码
 # ==========================
 
 # 1. 先把 internal/external 两套地点一次性读入内存
@@ -78,7 +80,7 @@ def search_nearby():
     # 根据 mode 选缓存里对应的列表
     places = PLACES_CACHE.get(mode, PLACES_CACHE["internal"])
 
-    # “附近筛选”逻辑示例（按距离 + 模糊名称 + 可选类型）：
+    # "附近筛选"逻辑示例（按距离 + 模糊名称 + 可选类型）：
     nearby_list = []
     for p in places:
         name = p.get("name", "")
@@ -125,10 +127,21 @@ def export_diaries():
             if fn.endswith('.json'):
                 os.remove(os.path.join(EXPORT_DIR, fn))
 
-        for diary in data['diaries']:
-            fname = f"diary_{diary['id']}.json"
-            with open(os.path.join(EXPORT_DIR, fname), 'w', encoding='utf-8') as f:
-                json.dump(diary, f, ensure_ascii=False, indent=2)
+        # 将所有日记合并为一个列表
+        all_diaries = data['diaries']
+        
+        # 将日记列表转换为JSON字符串
+        json_str = json.dumps(all_diaries, ensure_ascii=False)
+        
+        # 压缩JSON字符串
+        compressed_data = zlib.compress(json_str.encode('utf-8'))
+        
+        # 将压缩后的数据转换为base64字符串
+        base64_data = base64.b64encode(compressed_data).decode('utf-8')
+        
+        # 保存压缩后的数据
+        with open(os.path.join(EXPORT_DIR, 'diaries_compressed.json'), 'w', encoding='utf-8') as f:
+            json.dump({'compressed_data': base64_data}, f, ensure_ascii=False)
 
         return jsonify({'success': True, 'message': '日记导出成功', 'export_path': EXPORT_DIR})
     except Exception as e:
@@ -137,11 +150,24 @@ def export_diaries():
 @app.route('/api/import/diaries', methods=['GET'])
 def import_diaries():
     try:
-        diaries = []
-        for fn in os.listdir(EXPORT_DIR):
-            if fn.endswith('.json'):
-                with open(os.path.join(EXPORT_DIR, fn), 'r', encoding='utf-8') as f:
-                    diaries.append(json.load(f))
+        compressed_file = os.path.join(EXPORT_DIR, 'diaries_compressed.json')
+        if not os.path.exists(compressed_file):
+            return jsonify({'success': False, 'message': '未找到压缩的日记文件'}), 404
+
+        # 读取压缩文件
+        with open(compressed_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            base64_data = data['compressed_data']
+
+        # 解码base64数据
+        compressed_data = base64.b64decode(base64_data)
+        
+        # 解压缩数据
+        json_str = zlib.decompress(compressed_data).decode('utf-8')
+        
+        # 解析JSON数据
+        diaries = json.loads(json_str)
+
         return jsonify({'success': True, 'diaries': diaries})
     except Exception as e:
         return jsonify({'success': False, 'message': f'导入失败: {e}'}), 500

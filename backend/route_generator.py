@@ -7,11 +7,10 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import folium
-import networkx as nx
 import osmnx as ox
 from branca.element import Element
 from folium.plugins import TimestampedGeoJson
-
+import itertools
 import MapDatumTrans
 
 
@@ -29,7 +28,16 @@ def _haversine_m(lat1, lon1, lat2, lon2):
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     return R * c
 
-
+def brute_force_tsp(mat, n):
+    best_order = None
+    best_cost = float('inf')
+    for perm in itertools.permutations(range(1, n)):  # 固定从0开始
+        tour = [0] + list(perm) + [0]
+        cost = sum(mat[tour[i], tour[i+1]] for i in range(n))
+        if cost < best_cost:
+            best_cost = cost
+            best_order = tour
+    return best_order
 # ---------------------------------------------------------------------------
 # Main entry -----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -204,9 +212,7 @@ def generate_route_map(
                 dist_i, _ = _dijkstra(graph, sid)
                 for j, tid in enumerate(node_ids):
                     mat[i, j] = dist_i[tid]
-            order = nx.algorithms.approximation.traveling_salesman_problem(
-                nx.complete_graph(n), weight=lambda u, v, d: mat[u, v], cycle=True
-            )
+            order = brute_force_tsp(mat, n)
             full: list[int] = []
             for a, b in zip(order, order[1:]):
                 _, prevp = _dijkstra(graph, node_ids[a])

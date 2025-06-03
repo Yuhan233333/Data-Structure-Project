@@ -1,16 +1,10 @@
-// 创建 Vue 应用
 const app = Vue.createApp({
     data() {
         return {
-            // 日记列表
             diaries: [],
-            // 当前选中的日记ID
             currentDiaryId: null,
-            // 当前显示的日记内容
             currentDiary: null,
-            // 搜索关键词
             searchQuery: '',
-            // IndexedDB 数据库对象
             db: null,
             // 当前登录用户
             currentUser: localStorage.getItem('username'),
@@ -24,7 +18,8 @@ const app = Vue.createApp({
         filteredDiaries() {
             if (!this.searchQuery) {
                 // 没有搜索时，按评分高低排序
-                return this.diaries.slice().sort((a, b) => {
+                const sortedDiaries = [...this.diaries];
+                return quickSort(sortedDiaries, 0, sortedDiaries.length - 1, (a, b) => {
                     const avgA = this.averageRating(a);
                     const avgB = this.averageRating(b);
                     return avgB - avgA;
@@ -32,16 +27,15 @@ const app = Vue.createApp({
             }
             const query = this.searchQuery.toLowerCase();
             // 支持全文搜索：标题、作者、内容
-            return this.diaries.filter(diary => {
-                // 标题、作者、内容都转为小写后进行匹配
+            const filtered = this.diaries.filter(diary => {
                 const title = diary.title ? diary.title.toLowerCase() : '';
                 const author = diary.author ? diary.author.toLowerCase() : '';
-                // diary.content 可能包含HTML标签，先去除标签再搜索
                 let content = diary.content ? diary.content : '';
-                // 用正则去除HTML标签
                 content = content.replace(/<[^>]+>/g, '').toLowerCase();
                 return title.includes(query) || author.includes(query) || content.includes(query);
-            }).sort((a, b) => {
+            });
+            
+            return quickSort(filtered, 0, filtered.length - 1, (a, b) => {
                 const avgA = this.averageRating(a);
                 const avgB = this.averageRating(b);
                 return avgB - avgA;
@@ -121,7 +115,6 @@ const app = Vue.createApp({
             }
         },
 
-        // 新增：专门用于保存浏览量的方法
         async saveDiaryViews(diary) {
             // 先深拷贝，去掉 Proxy
             const plainDiary = JSON.parse(JSON.stringify(diary));
@@ -205,7 +198,7 @@ const app = Vue.createApp({
                 ElementPlus.ElMessage.warning('请先登录');
                 return;
             }
-            // 一定要用 this.diaries 里的最新对象
+            // 获取当前日记
             const diary = this.diaries.find(d => String(d.id) === String(this.currentDiaryId));
             if (!diary) return;
             if (!Array.isArray(diary.ratings)) diary.ratings = [];
@@ -249,4 +242,29 @@ const app = Vue.createApp({
 app.use(ElementPlus);
 
 // 挂载应用
-app.mount('#app'); 
+app.mount('#app');
+
+// 快速排序实现
+function quickSort(arr, left, right, compareFn) {
+    if (left < right) {
+        const pivotIndex = partition(arr, left, right, compareFn);
+        quickSort(arr, left, pivotIndex - 1, compareFn);
+        quickSort(arr, pivotIndex + 1, right, compareFn);
+    }
+    return arr;
+}
+
+// 分区函数
+function partition(arr, left, right, compareFn) {
+    const pivot = arr[right];
+    let i = left - 1;
+
+    for (let j = left; j < right; j++) {
+        if (compareFn(arr[j], pivot) < 0) {
+            i++;
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+    [arr[i + 1], arr[right]] = [arr[right], arr[i + 1]];
+    return i + 1;
+} 

@@ -90,7 +90,7 @@ const app = Vue.createApp({
         /**
          * 退出登录
          */
-        logout() {
+        async logout() {
             // 显示确认对话框
             ElementPlus.ElMessageBox.confirm(
                 '确定要退出登录吗？',
@@ -100,19 +100,38 @@ const app = Vue.createApp({
                     cancelButtonText: '取消',
                     type: 'warning',
                 }
-            ).then(() => {
-                // 清除会话存储的用户信息
-                sessionStorage.removeItem('token');
-                sessionStorage.removeItem('username');
-                sessionStorage.removeItem('role');
-                
-                // 显示退出成功消息
-                ElementPlus.ElMessage.success('退出登录成功');
-                
-                // 跳转到登录页面
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 500);
+            ).then(async () => {
+                try {
+                    // 调用后端退出接口
+                    const response = await fetch(`${API_BASE_URL}/api/logout`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+                            'X-Username': sessionStorage.getItem('username')
+                        }
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        // 清除会话存储的用户信息
+                        sessionStorage.removeItem('token');
+                        sessionStorage.removeItem('username');
+                        sessionStorage.removeItem('role');
+                        
+                        // 显示退出成功消息
+                        ElementPlus.ElMessage.success('退出登录成功');
+                        
+                        // 跳转到登录页面
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 500);
+                    } else {
+                        ElementPlus.ElMessage.error(data.message || '退出登录失败');
+                    }
+                } catch (error) {
+                    console.error('退出登录失败:', error);
+                    ElementPlus.ElMessage.error('退出登录失败，请稍后重试');
+                }
             }).catch(() => {
                 // 用户取消退出，不做任何操作
             });

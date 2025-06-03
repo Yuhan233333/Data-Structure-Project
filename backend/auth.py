@@ -419,4 +419,31 @@ def update_user_statistics(username):
         return jsonify({
             'success': False,
             'message': '更新使用统计失败'
+        }), 500
+
+@auth.route('/api/logout', methods=['POST'])
+def logout():
+    """用户退出登录"""
+    try:
+        # 获取用户名
+        username = request.headers.get('X-Username')
+        if not username:
+            return jsonify({'success': False, 'message': '未提供用户名'}), 400
+
+        # 加载在线用户信息
+        online_users = load_online_users()
+        
+        # 如果用户在线，则删除其在线状态
+        if username in online_users:
+            del online_users[username]
+            save_online_users(online_users)
+            
+        return jsonify({
+            'success': True,
+            'message': '退出登录成功'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': '退出登录失败'
         }), 500 

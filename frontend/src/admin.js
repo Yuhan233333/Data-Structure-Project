@@ -76,13 +76,32 @@ const app = Vue.createApp({
          * 退出登录
          * 清除本地存储的认证信息并跳转到登录页面
          */
-        logout() {
-            // 清除所有认证信息
-            sessionStorage.removeItem('token');
-            sessionStorage.removeItem('role');
-            sessionStorage.removeItem('username');
-            // 跳转到登录页面
-            window.location.href = 'login.html';
+        async logout() {
+            try {
+                // 调用后端退出接口
+                const response = await fetch(`${API_BASE_URL}/api/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+                        'X-Username': sessionStorage.getItem('username')
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // 清除所有认证信息
+                    sessionStorage.removeItem('token');
+                    sessionStorage.removeItem('role');
+                    sessionStorage.removeItem('username');
+                    // 跳转到登录页面
+                    window.location.href = 'login.html';
+                } else {
+                    ElementPlus.ElMessage.error(data.message || '退出登录失败');
+                }
+            } catch (error) {
+                console.error('退出登录失败:', error);
+                ElementPlus.ElMessage.error('退出登录失败，请稍后重试');
+            }
         },
 
         /**

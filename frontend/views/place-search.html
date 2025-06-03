@@ -77,6 +77,20 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- 无搜索结果提示 -->
+                    <div class="no-results" v-if="places.length === 0 && !loading">
+                        <div v-if="noResultsFound" class="no-results-message">
+                            <i class="fas fa-search"></i>
+                            <p>未找到符合条件的景点</p>
+                            <p v-if="searchQuery">请尝试其他搜索关键词或清除筛选条件</p>
+                            <p v-else-if="activeType">请尝试选择其他景点类型或清除筛选条件</p>
+                        </div>
+                        <div v-else class="loading-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>正在加载数据...</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 详情弹窗 -->

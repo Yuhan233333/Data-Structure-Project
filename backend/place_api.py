@@ -12,7 +12,13 @@ class ScenicSpot:
         self.type = type_
         self.rating = rating
         self.popularity = popularity
-        self.keywords = keywords
+        # 确保keywords是列表
+        if isinstance(keywords, str):
+            self.keywords = keywords.split('|') if keywords else []
+        elif isinstance(keywords, list):
+            self.keywords = keywords
+        else:
+            self.keywords = []
         self.image = image or ''
         self.address = address or ''
 
@@ -67,7 +73,10 @@ class RecommendationSystem:
                     rating = round(rating, 1)
                     popularity = round(popularity, 1)
                     
-                    keywords = [kw.strip() for kw in row[col_map.get('keywords', 4)].split('|') if kw.strip()]
+                    # 确保正确处理关键词
+                    keywords_str = row[col_map.get('keywords', 4)]
+                    keywords = [kw.strip() for kw in keywords_str.split('|') if kw.strip()] if keywords_str else []
+                    
                     # 统一设置所有场所的图片路径为/backend/gugong.jpg
                     image = '/backend/gugong.jpg'
                     address = row[col_map.get('address', 6)] if 'address' in col_map else ''
@@ -177,7 +186,18 @@ recommendation_system.load_spots_csv(PLACES_FILE)
 @place_bp.route('/api/places', methods=['GET'])
 def get_places():
     """获取所有场所数据，前端自行筛选"""
-    return jsonify([spot.to_dict() for spot in recommendation_system.spots])
+    # 确保返回结果是有效的JSON对象
+    result = []
+    for spot in recommendation_system.spots:
+        spot_dict = spot.to_dict()
+        # 确保keywords字段是数组
+        if isinstance(spot_dict['keywords'], str):
+            spot_dict['keywords'] = spot_dict['keywords'].split('|')
+        elif not isinstance(spot_dict['keywords'], list):
+            spot_dict['keywords'] = []
+        result.append(spot_dict)
+    
+    return jsonify(result)
 
 @place_bp.route('/api/places/top', methods=['GET'])
 def get_top_places():
@@ -186,7 +206,7 @@ def get_top_places():
     count = request.args.get('count', default=10, type=int)
     type_filter = request.args.get('type', default=None, type=str)
     sort_by = request.args.get('sort_by', default='mixed', type=str)
-    page = request.args.get('page', default=1, type=int)  # 新增页码参数
+    page = request.args.get('page', default=1, type=int)  # 页码参数
     
     # 定义过滤函数
     filter_func = None
@@ -210,14 +230,33 @@ def get_top_places():
     # 根据排序键对所有符合条件的景点进行排序
     sorted_spots = sorted(filtered_spots, key=key_func, reverse=True)
     
-    # 计算分页
+    # 计算分页 - 修复索引计算逻辑
+    total_spots = len(sorted_spots)
     start_idx = (page - 1) * count
-    end_idx = start_idx + count
+    
+    # 确保页码有效
+    if start_idx >= total_spots and page > 1 and total_spots > 0:
+        # 如果请求页码超出范围，自动返回第一页
+        page = 1
+        start_idx = 0
+    
+    end_idx = min(start_idx + count, total_spots)
     
     # 获取当前页的景点
     paged_spots = sorted_spots[start_idx:end_idx]
     
-    return jsonify([spot.to_dict() for spot in paged_spots])
+    # 确保返回结果是有效的JSON对象
+    result = []
+    for spot in paged_spots:
+        spot_dict = spot.to_dict()
+        # 确保keywords字段是数组
+        if isinstance(spot_dict['keywords'], str):
+            spot_dict['keywords'] = spot_dict['keywords'].split('|')
+        elif not isinstance(spot_dict['keywords'], list):
+            spot_dict['keywords'] = []
+        result.append(spot_dict)
+    
+    return jsonify(result)
 
 @place_bp.route('/api/places/types', methods=['GET'])
 def get_place_types():

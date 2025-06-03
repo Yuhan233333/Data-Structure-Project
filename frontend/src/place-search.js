@@ -10,6 +10,7 @@ const app = Vue.createApp({
             pageSize: 10,
             loading: false,
             totalCount: 0,
+            noResultsFound: false,  // 新增：标记是否无搜索结果
             // 详情弹窗相关
             showDetailModal: false,
             selectedPlace: {},
@@ -26,7 +27,8 @@ const app = Vue.createApp({
             return this.places;
         },
         totalPages() {
-            return Math.ceil(this.totalCount / this.pageSize);
+            // 修复totalPages计算，确保至少有一页
+            return Math.max(1, Math.ceil(this.totalCount / this.pageSize));
         },
         pageNumbers() {
             const pages = [];
@@ -42,7 +44,7 @@ const app = Vue.createApp({
                 pages.push(1);
                 
                 // 计算中间页码的起始和结束
-                let startPage = Math.max(2, this.currentPage - Math.floor(maxVisiblePages / 2));
+                let startPage = Math.max(2, this.currentPage - Math.floor((maxVisiblePages - 2) / 2));
                 let endPage = Math.min(this.totalPages - 1, startPage + maxVisiblePages - 3);
                 
                 // 调整起始页，确保显示足够的页码
@@ -65,8 +67,10 @@ const app = Vue.createApp({
                     pages.push('...');
                 }
                 
-                // 总是显示最后一页
-                pages.push(this.totalPages);
+                // 总是显示最后一页（当总页数大于1时）
+                if (this.totalPages > 1) {
+                    pages.push(this.totalPages);
+                }
             }
             
             return pages;
@@ -75,108 +79,187 @@ const app = Vue.createApp({
     methods: {
         fetchPlaces() {
             this.loading = true;
+            this.noResultsFound = false; // 重置无结果标记
             
-            // 构建API URL，使用top端点，添加分页参数
-            let url = `http://localhost:5000/api/places/top?count=${this.pageSize}&sort_by=${this.sortBy}&page=${this.currentPage}`;
+            // 构建基础API URL
+            let url = `http://localhost:5000/api/places`;
             
-            // 添加类型过滤
-            if (this.activeType) {
-                url += `&type=${encodeURIComponent(this.activeType)}`;
-            }
-            
-            // 获取数据
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    // 处理返回的数据
-                    this.places = data.map(place => {
-                        // 处理keywords字段，确保它是数组
-                        let keywords = place.keywords;
-                        if (typeof keywords === 'string') {
-                            keywords = keywords.split('|').filter(k => k.trim());
-                        } else if (!Array.isArray(keywords)) {
-                            keywords = [];
-                        }
-                        
-                        return {
-                            ...place,
-                            keywords: keywords,
-                            // 确保图片路径正确
-                            image: place.image && place.image.includes('gugong.jpg') ? 
-                                  '/backend/gugong.jpg' : 
-                                  (place.image || '/backend/gugong.jpg')
-                        };
-                    });
-                    
-                    // 如果有搜索关键词，在前端进行过滤
-                    if (this.searchQuery) {
+            // 如果有搜索关键词，使用全部数据进行筛选；否则使用分页API
+            if (this.searchQuery) {
+                // 获取全部数据，前端自行处理分页
+                fetch(url)
+                    .then(res => res.json())
+                    .then(allData => {
+                        // 前端筛选搜索结果
                         const query = this.searchQuery.toLowerCase();
-                        this.places = this.places.filter(place => 
+                        let filteredData = allData.filter(place => 
                             place.name.toLowerCase().includes(query) || 
                             place.type.toLowerCase().includes(query) ||
-                            place.keywords.some(keyword => keyword.toLowerCase().includes(query))
+                            (place.keywords && (Array.isArray(place.keywords) ? 
+                                place.keywords.some(k => k.toLowerCase().includes(query)) : 
+                                String(place.keywords).toLowerCase().includes(query)))
                         );
-                    }
-                    
-                    // 获取总数量（用于计算分页）
-                    fetch('http://localhost:5000/api/places')
-                        .then(res => res.json())
-                        .then(allData => {
-                            // 计算符合条件的总数量
-                            let filteredData = allData;
-                            if (this.activeType) {
-                                filteredData = filteredData.filter(p => p.type === this.activeType);
-                            }
-                            if (this.searchQuery) {
-                                const q = this.searchQuery.toLowerCase();
-                                filteredData = filteredData.filter(p => 
-                                    p.name.toLowerCase().includes(q) || 
-                                    p.type.toLowerCase().includes(q) ||
-                                    (p.keywords && (typeof p.keywords === 'string' ? 
-                                        p.keywords.toLowerCase().includes(q) : 
-                                        p.keywords.some(k => k.toLowerCase().includes(q))))
-                                );
-                            }
-                            this.totalCount = filteredData.length;
-                        })
-                        .catch(error => {
-                            console.error('获取总数量失败:', error);
-                            this.totalCount = this.places.length;
-                        })
-                        .finally(() => {
+                        
+                        // 按当前排序方式对数据进行排序
+                        if (this.sortBy === 'rating') {
+                            filteredData.sort((a, b) => b.rating - a.rating);
+                        } else if (this.sortBy === 'popularity') {
+                            filteredData.sort((a, b) => b.popularity - a.popularity);
+                        } else { // mixed
+                            filteredData.sort((a, b) => (0.5 * b.rating + 0.5 * b.popularity / 10) - (0.5 * a.rating + 0.5 * a.popularity / 10));
+                        }
+                        
+                        // 再按类型过滤
+                        if (this.activeType) {
+                            filteredData = filteredData.filter(p => p.type === this.activeType);
+                        }
+                        
+                        // 记录总数量
+                        this.totalCount = filteredData.length;
+                        
+                        if (filteredData.length === 0) {
+                            this.noResultsFound = true;
+                            this.places = [];
                             this.loading = false;
+                            return;
+                        }
+                        
+                        // 前端分页
+                        const startIdx = (this.currentPage - 1) * this.pageSize;
+                        const endIdx = startIdx + this.pageSize;
+                        this.places = filteredData.slice(startIdx, endIdx).map(place => {
+                            // 处理keywords字段，确保它是数组
+                            let keywords = place.keywords;
+                            if (typeof keywords === 'string') {
+                                keywords = keywords.split('|').filter(k => k.trim());
+                            } else if (!Array.isArray(keywords)) {
+                                keywords = [];
+                            }
+                            
+                            return {
+                                ...place,
+                                keywords: keywords,
+                                // 确保图片路径正确，并设置默认图片
+                                image: place.image || '/backend/gugong.jpg'
+                            };
                         });
-                    
-                    // 获取所有类型（用于筛选）
-                    fetch('http://localhost:5000/api/places/types')
-                        .then(res => res.json())
-                        .then(types => {
-                            this.types = types;
-                        })
-                        .catch(error => {
-                            console.error('获取类型失败:', error);
-                            this.types = [...new Set(this.places.map(p => p.type))];
+                        
+                        // 页面为空且不是第一页时，自动跳转到第一页
+                        if (this.places.length === 0 && this.currentPage > 1) {
+                            this.currentPage = 1;
+                            this.fetchPlaces();
+                        }
+                        
+                        this.loading = false;
+                    })
+                    .catch(error => {
+                        console.error('获取景点数据失败:', error);
+                        this.loading = false;
+                    });
+            } else {
+                // 使用后端分页API
+                url = `${url}/top?count=${this.pageSize}&sort_by=${this.sortBy}&page=${this.currentPage}`;
+                
+                // 添加类型过滤
+                if (this.activeType) {
+                    url += `&type=${encodeURIComponent(this.activeType)}`;
+                }
+                
+                // 获取数据
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        // 处理返回的数据
+                        this.places = data.map(place => {
+                            // 处理keywords字段，确保它是数组
+                            let keywords = place.keywords;
+                            if (typeof keywords === 'string') {
+                                keywords = keywords.split('|').filter(k => k.trim());
+                            } else if (!Array.isArray(keywords)) {
+                                keywords = [];
+                            }
+                            
+                            return {
+                                ...place,
+                                keywords: keywords,
+                                // 确保图片路径正确，并设置默认图片
+                                image: place.image || '/backend/gugong.jpg'
+                            };
                         });
-                })
-                .catch(error => {
-                    console.error('获取景点数据失败:', error);
-                    this.loading = false;
-                });
+                        
+                        // 获取总数量（用于计算分页）
+                        fetch('http://localhost:5000/api/places')
+                            .then(res => res.json())
+                            .then(allData => {
+                                // 计算符合条件的总数量
+                                let filteredData = allData;
+                                if (this.activeType) {
+                                    filteredData = filteredData.filter(p => p.type === this.activeType);
+                                }
+                                this.totalCount = filteredData.length;
+                                
+                                if (this.totalCount === 0) {
+                                    this.noResultsFound = true;
+                                }
+                                
+                                // 页面为空且不是第一页时，自动跳转到第一页
+                                if (this.places.length === 0 && this.currentPage > 1 && this.totalCount > 0) {
+                                    this.currentPage = 1;
+                                    this.fetchPlaces();
+                                }
+                            })
+                            .catch(error => {
+                                console.error('获取总数量失败:', error);
+                                this.totalCount = this.places.length;
+                            })
+                            .finally(() => {
+                                this.loading = false;
+                            });
+                        
+                        // 获取所有类型（用于筛选）
+                        fetch('http://localhost:5000/api/places/types')
+                            .then(res => res.json())
+                            .then(types => {
+                                this.types = types;
+                            })
+                            .catch(error => {
+                                console.error('获取类型失败:', error);
+                                this.types = [...new Set(this.places.map(p => p.type))];
+                            });
+                    })
+                    .catch(error => {
+                        console.error('获取景点数据失败:', error);
+                        this.loading = false;
+                    });
+            }
         },
         
         filterByType(type) {
+            if (this.activeType === type) {
+                return; // 如果点击的是当前已选类型，不执行操作
+            }
             this.activeType = type;
             this.currentPage = 1; // 重置到第一页
+            this.noResultsFound = false; // 重置无结果标记
             this.fetchPlaces();
         },
         
         sortPlaces(sort) {
+            if (this.sortBy === sort) {
+                return; // 如果点击的是当前已选排序方式，不执行操作
+            }
             this.sortBy = sort;
+            this.noResultsFound = false; // 重置无结果标记
             this.fetchPlaces();
         },
         
         goToPage(page) {
             if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
+                // 如果是当前页，不进行操作
+                if (page === this.currentPage) {
+                    return;
+                }
+                
                 this.currentPage = page;
                 this.fetchPlaces();
                 
@@ -204,6 +287,7 @@ const app = Vue.createApp({
         handleImageError(e) {
             // 当图片加载失败时，替换为默认图片
             e.target.src = '../assets/place1.jpg';
+            console.log('图片加载失败，已替换为默认图片');
         },
         
         // 显示详情弹窗
